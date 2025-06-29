@@ -31,43 +31,46 @@ Guide for UCE Phylogenomic Analysis
 This command counts the number of reads in files R1 or R2 (in the example R1). It is useful to verify that R1 and R2 have the same number of reads.
 The command divides the total number of lines by 4, since each read in FASTQ format occupies 4 lines.
 
-```bash
+```
 for i in *_R1_*.fastq.gz; do echo $i; gunzip -c $i | wc -l | awk '{print $1/4}'; done
 ```
 ⚠️ If R1 and R2 have a different number of readings, it will be necessary to match them before continuing.
 
 ### 2.2 FASTP
-Para ejecutar el filtrado de calidad (eliminación de bases de baja calidad) y limpieza de los archivos FASTQ (eliminación adaptadores y lecturas duplicadas), utilizamos un script llamado fastp.sh. Este script toma como entrada una carpeta que contiene los archivos FASTQ brutos y genera las secuencias limpias en una carpeta de salida (por ejemplo, clean-fastq).
+To perform quality filtering (removal of low-quality bases) and cleaning of the FASTQ files (removal of adapter sequences and duplicate reads), we use a script called fastp.sh. This script takes as input a folder containing the raw FASTQ files and generates cleaned sequences in an output directory (e.g., clean-fastq).
 
 An example of running the script would be:
-```bash
-bash fastp.sh ~/Desktop/Diego/fastq ~/Desktop/Diego/clean-fastq
+```
+bash fastp.sh [input path:~/Desktop/Diego/data/fastq] [output path:~/Desktop/Diego/data/clean_reads_fastq]
 ```
 
-### 2.3 ExaBayes Installation
+### 2.3 CD-HIT-DUP
 
-Install via source with GCC 10 and MPI. See ExaBayes manual.
+Before running assemblies with SPAdes, it is recommended to remove potential contamination and duplicate reads present in the raw data. This is done using CD-HIT-DUP, a tool designed to detect duplicate sequences in FASTQ files.
 
-### 2.4 CD-HIT Installation
-
-```bash
-conda install -c bioconda cd-hit
-conda install -c bioconda cd-hit-auxtools
+The process is automated through the cd-hit-dup.sh script, which takes the raw data as input and generates cleaned output files ready for assembly.
+```
+bash cd-hit-dup.sh [input path:~/Desktop/Diego/data/clean_reads_fastq] [output path:~/Desktop/Diego/data/clean_reads_cdhitdup]
 ```
 
-### 2.5 ASTRAL Installation
+## 3. Contig assembly
 
-Download JAR file and add path to environment or use absolute path.
+### 3.1 SPADES
+The SPAdes program integrated into Phyluce requires a configuration file (assembly.conf) with a [samples] header and a list of each sample name followed by the path to its cleaned sequences.
 
-### 2.6 Fastp Installation
-
-```bash
-conda install -c bioconda fastp
+From within the folder containing your cleaned sample directories:
 ```
-
----
-
-## 3. PHYLOGENOMIC ANALYSIS
+echo "[samples]" > ../assembly.conf
+for i in *; do echo "$i:/home/intern/Desktop/Diego/data/clean_reads_cdhitdup/$i/"; done >> ../assembly.conf
+```
+Example assembly.conf:
+```
+[samples]
+Acteon_sp:/home/intern/Desktop/data/Diego/data/clean_reads_cdhitdup/Acteon_sp
+Acteon_tornatilis:/home/intern/Desktop/data/Diego/data/clean_reads_cdhitdup/Acteon_tornatilis
+Akera_bullata:/home/intern/Desktop/data/Diego/data/clean_reads_cdhitdup/Akera_bullata
+Ammonicera_sp:/home/intern/Desktop/data/Diego/data/clean_reads_cdhitdup/Ammonicera_sp
+```
 
 * **Counting Reads**
 * **Pre-processing** (fastp, cd-hit-dup, adapter trimming)
