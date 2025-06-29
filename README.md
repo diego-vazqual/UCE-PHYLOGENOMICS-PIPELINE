@@ -22,7 +22,6 @@ Guide for UCE Phylogenomic Analysis
 * IQ-TREE v2.2.5 (https://iqtree.github.io/)
 * OpenMPI 4.1.0-10 (https://www.open-mpi.org)
 * Phyluce v1.7.2 (https://phyluce.readthedocs.io/en/latest/)
-* 
 ---
 
 ## 2. Clean reads
@@ -71,6 +70,18 @@ Acteon_tornatilis:/home/intern/Desktop/data/Diego/data/clean_reads_cdhitdup/Acte
 Akera_bullata:/home/intern/Desktop/data/Diego/data/clean_reads_cdhitdup/Akera_bullata
 Ammonicera_sp:/home/intern/Desktop/data/Diego/data/clean_reads_cdhitdup/Ammonicera_sp
 ```
+Run SPAdes assembly (from within the folder containing config file):
+⚠️ Before running `phyluce_assembly_assemblo_spades`, make sure you have activated the environment where Phyluce is installed:
+```
+conda activate phyluce-1.7.2
+```
+```
+phyluce_assembly_assemblo_spades \
+    --conf assembly.conf \
+    --output spades_assemblies \
+    --cores 30
+```
+📌 CPU threads depending on dataset size. This example used 117 samples and 2225 captured UCEs.
 
 * **Counting Reads**
 * **Pre-processing** (fastp, cd-hit-dup, adapter trimming)
