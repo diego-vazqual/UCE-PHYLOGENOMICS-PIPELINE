@@ -1,21 +1,16 @@
 # UCE-PHYLOPIPE
 
-Guide for UCE (Ultra Conserved Elements) Phylogenomic Analysis
+Guide for UCE Phylogenomic Analysis
 
-## 📚 INDEX
+## INDEX
 
 1. [Requirements](#1-requirements)
-2. [Getting Started](#2-getting-started)
-
-   * [2.1 Phyluce Installation](#21-phyluce-installation)
-   * [2.2 IQ-TREE Installation](#22-iq-tree-installation)
-   * [2.3 ExaBayes Installation](#23-exabayes-installation)
-   * [2.4 CD-HIT Installation](#24-cd-hit-installation)
-   * [2.5 ASTRAL Installation](#25-astral-installation)
-   * [2.6 Fastp Installation](#26-fastp-installation)
-3. [Phylogenomic Analysis](#3-phylogenomic-analysis)
-4. [Downstream Analysis](#4-downstream-analysis)
-5. [References](#5-references)
+2. [Clean reads](#2-clean-reads)
+3. [Contig assembly](#3-contig-assembly)
+4. [Target enrichment](#4-target-enrichment)
+5. [Alignment](#5-Alignment)
+6. [Phylogenomic Analysis](#6-phylogenomic-analysis)
+7. [References](7-references)
 
 ---
 
