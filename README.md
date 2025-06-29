@@ -26,7 +26,7 @@ Guide for UCE Phylogenomic Analysis
 
 ## 2. Clean reads
 
-### 2.1 COUNTING THE READ DATA
+### 2.1 Counting the read data
 This command counts the number of reads in files R1 or R2 (in the example R1). It is useful to verify that R1 and R2 have the same number of reads.
 The command divides the total number of lines by 4, since each read in FASTQ format occupies 4 lines.
 
@@ -65,12 +65,13 @@ for i in *; do echo "$i:/home/intern/Desktop/Diego/data/clean_reads_cdhitdup/$i/
 Example assembly.conf:
 ```
 [samples]
-Acteon_sp:/home/intern/Desktop/data/Diego/data/clean_reads_cdhitdup/Acteon_sp
-Acteon_tornatilis:/home/intern/Desktop/data/Diego/data/clean_reads_cdhitdup/Acteon_tornatilis
-Akera_bullata:/home/intern/Desktop/data/Diego/data/clean_reads_cdhitdup/Akera_bullata
-Ammonicera_sp:/home/intern/Desktop/data/Diego/data/clean_reads_cdhitdup/Ammonicera_sp
+Acteon_sp:/home/intern/Desktop/Diego/data/clean_reads_cdhitdup/Acteon_sp
+Acteon_tornatilis:/home/intern/Desktop/Diego/data/clean_reads_cdhitdup/Acteon_tornatilis
+Akera_bullata:/home/intern/Desktop/Diego/data/clean_reads_cdhitdup/Akera_bullata
+Ammonicera_sp:/home/intern/Desktop/Diego/data/clean_reads_cdhitdup/Ammonicera_sp
 ```
 Run SPAdes assembly (from within the folder containing config file):
+
 ⚠️ Before running `phyluce_assembly_assemblo_spades`, make sure you have activated the environment where Phyluce is installed:
 ```
 conda activate phyluce-1.7.2
@@ -78,30 +79,25 @@ conda activate phyluce-1.7.2
 ```
 phyluce_assembly_assemblo_spades \
     --conf assembly.conf \
-    --output spades_assemblies \
+    --output data/spades_assemblies \
     --cores 30
 ```
 📌 CPU threads depending on dataset size. This example used 117 samples and 2225 captured UCEs.
 
-* **Counting Reads**
-* **Pre-processing** (fastp, cd-hit-dup, adapter trimming)
-* **Assembly** using SPAdes via `phyluce_assembly_assemblo_spades`
-* **UCE Loci Identification**
-* **Loci Extraction and Filtering**
-* **Alignment with MAFFT**
-* **Masking with Gblocks / Zorro**
-* **Building Final Matrices** (50% occupancy, filtered loci)
+## 4. Target enrichment
 
----
+### 4.1 Finding UCE loci
+After assembling contigs from the clean reads, the next step is to identify which contigs correspond to UCE loci (Ultra Conserved Elements) and exclude non-target sequences.
 
-## 4. DOWNSTREAM ANALYSIS
+From this point forward, maintaining a clean and consistent folder structure becomes especially important to avoid errors and streamline the workflow.
 
-### 4.1 IQ-TREE
-
-Maximum Likelihood trees with GHOST models:
-
-```bash
-iqtree2 -s input.phylip -m GTR+FO*H4 -B 1500 -T AUTO
+To identify UCE loci, the following command is used, which compares the contigs with a set of probes. In this example, the command is executed from within the `Diego/` directory, where the probe file `Probeset-70nt.fasta` is located:
+```
+phyluce_assembly_match_contigs_to_probes \
+    --contigs data/spades_assemblies \
+    --probes Probeset-70nt.fasta \
+    --output uce-search-results \
+    --keep-duplicates duplicates.txt
 ```
 
 ### 4.2 ExaBayes
