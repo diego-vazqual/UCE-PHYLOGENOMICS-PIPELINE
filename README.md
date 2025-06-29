@@ -16,28 +16,32 @@ Guide for UCE Phylogenomic Analysis
 
 ## 1. REQUIREMENTS
 
-* Phyluce >= v1.7.2 [Docs](https://phyluce.readthedocs.io)
-* IQ-TREE [Link](http://www.iqtree.org)
-* ExaBayes [Manual](https://cme.h-its.org/exelixis/web/software/exabayes/)
-* OpenMPI >= 4.1.0 [Link](https://www.open-mpi.org)
-* CD-HIT [Link](https://sites.google.com/view/cd-hit)
+* CD-HIT-DUP [Link](https://sites.google.com/view/cd-hit)
+* ExaBayes v1.5 [Link](https://cme.h-its.org/exelixis/web/software/exabayes/)
 * Fastp [GitHub](https://github.com/OpenGene/fastp)
-* GCC version 10.5.0 [Link](https://gcc.gnu.org)
-
+* IQ-TREE v2.2.5 [Link](https://iqtree.github.io/)
+* OpenMPI 4.1.0-10 [Link](https://www.open-mpi.org)
+* Phyluce v1.7.2 [Link](https://phyluce.readthedocs.io/en/latest/)
+* 
 ---
 
-## 2. GETTING STARTED
+## 2. Clean reads
 
-### 2.1 Phyluce Installation
-
-Instructions for Miniconda and environment setup, and Phyluce YAML install.
-
-### 2.2 IQ-TREE Installation
-
-Install via Conda:
+### 2.1 COUNTING THE READ DATA
+This command counts the number of reads in files R1 or R2 (in the example R1). It is useful to verify that R1 and R2 have the same number of reads.
+The command divides the total number of lines by 4, since each read in FASTQ format occupies 4 lines.
 
 ```bash
-conda install -c bioconda iqtree
+for i in *_R1_*.fastq.gz; do echo $i; gunzip -c $i | wc -l | awk '{print $1/4}'; done
+```
+⚠️ If R1 and R2 have a different number of readings, it will be necessary to match them before continuing.
+
+### 2.2 FASTP
+Para ejecutar el filtrado de calidad (eliminación de bases de baja calidad) y limpieza de los archivos FASTQ (eliminación adaptadores y lecturas duplicadas), utilizamos un script llamado fastp.sh. Este script toma como entrada una carpeta que contiene los archivos FASTQ brutos y genera las secuencias limpias en una carpeta de salida (por ejemplo, clean-fastq).
+
+An example of running the script would be:
+```bash
+bash fastp.sh ~/Desktop/Diego/fastq ~/Desktop/Diego/clean-fastq
 ```
 
 ### 2.3 ExaBayes Installation
