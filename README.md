@@ -16,12 +16,12 @@ Guide for UCE Phylogenomic Analysis
 
 ## 1. REQUIREMENTS
 
-* CD-HIT-DUP [Link](https://sites.google.com/view/cd-hit)
-* ExaBayes v1.5 [Link](https://cme.h-its.org/exelixis/web/software/exabayes/)
-* Fastp [GitHub](https://github.com/OpenGene/fastp)
-* IQ-TREE v2.2.5 [Link](https://iqtree.github.io/)
-* OpenMPI 4.1.0-10 [Link](https://www.open-mpi.org)
-* Phyluce v1.7.2 [Link](https://phyluce.readthedocs.io/en/latest/)
+* CD-HIT-DUP (https://sites.google.com/view/cd-hit)
+* ExaBayes v1.5 (https://cme.h-its.org/exelixis/web/software/exabayes/)
+* Fastp (https://github.com/OpenGene/fastp)
+* IQ-TREE v2.2.5 (https://iqtree.github.io/)
+* OpenMPI 4.1.0-10 (https://www.open-mpi.org)
+* Phyluce v1.7.2 (https://phyluce.readthedocs.io/en/latest/)
 * 
 ---
 
