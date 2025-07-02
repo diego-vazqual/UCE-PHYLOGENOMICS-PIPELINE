@@ -99,7 +99,7 @@ phyluce_assembly_match_contigs_to_probes \
     --output uce-search-results \
     --keep-duplicates duplicates.txt
 ```
-By default, the Phyluce function `phyluce_assembly_match_contigs_to_probes´ filters out UCE loci and contigs identified as duplicates in the dataset. These are identified as duplicates when probes designed for different UCE loci retrieve the same contig, or when multiple contigs, supposedly representing different genomic regions, are matched with probes targeting a single UCE locus. To recover these duplicates, the `--keep-duplicates´ option is used.
+By default, the Phyluce function `phyluce_assembly_match_contigs_to_probes` filters out UCE loci and contigs identified as duplicates in the dataset. These are identified as duplicates when probes designed for different UCE loci retrieve the same contig, or when multiple contigs, supposedly representing different genomic regions, are matched with probes targeting a single UCE locus. To recover these duplicates, the `--keep-duplicates` option is used.
 ### 4.2 ExaBayes
 
 Run with `exabayes.sh`, analyze convergence with `postProcParam`, `sdsf`, `credibleSet`, etc.
