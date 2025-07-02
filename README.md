@@ -1,6 +1,6 @@
-# UCE-PHYLOPIPE
+# Guide for UCE Phylogenomic Analysis
 ![logo](https://github.com/diego-vazqual/UCE-PHYLOGENOMICS-PIPELINE/blob/main/ultraconserved-header.png)
-Guide for UCE Phylogenomic Analysis
+
 
 ## INDEX
 
