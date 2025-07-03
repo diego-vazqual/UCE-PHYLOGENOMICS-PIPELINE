@@ -201,6 +201,7 @@ phyluce_assembly_explode_get_fastas_file \
     --output exploded-duplicates-fastas \
     --by-taxon
 ```
+
 To select the most representative contig, we rely on two criteria: the longest contig and the highest percentage identity relative to the corresponding locus in other taxa. By default, the script `phyluce_assembly_parse_duplicates_file.py` labels this contig as DUPE1. To recover these DUPE1 contigs, we run the following commands:
 ```
 cd exploded-duplicates-fastas
@@ -211,6 +212,7 @@ cat *-DUPE1.unaligned.fasta >> duplicates_DUPE1.fasta
 ```
 sed -i 's/_DUPE1//g' duplicates_DUPE1.fasta
 ```
+
 Now, the selected contigs stored in the FASTA file `duplicates_DUPE1.fasta` are concatenated with the rest of the contigs from the FASTA file `taxon_set1-taxa-incomplete.fasta`.
 
 First, we make a copy of the `duplicates_DUPE1.fasta` file into the main working directory, in this case `work_directory/`:
@@ -223,7 +225,7 @@ And finally, we concatenate both files:
 cat taxon_set1-taxa-incomplete.fasta duplicates_DUPE1.fasta >> final-taxon_set1-taxa-incomplete.fasta
 ```
 
-To find out how many duplicates we have recovered per taxon, we can recalculate the statistics from step 4.2.1 and compare how many UCE loci have been recovered.
+☁️ To find out how many duplicates we have recovered per taxon, we can recalculate the statistics from step 4.2.1 and compare how many UCE loci have been recovered.
 
 To do this, we repeat the steps from section 4.2.1, but this time using the file `final-taxon_set1-taxa-incomplete.fasta`:
 ```
