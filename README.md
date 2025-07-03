@@ -98,10 +98,14 @@ phyluce_assembly_match_contigs_to_probes \
     --probes Probeset-70nt.fasta \
     --output uce-search-results \
     --keep-duplicates duplicates.txt
+    --csv uce_serach_results.csv
 ```
+
 By default, the Phyluce function `phyluce_assembly_match_contigs_to_probes` filters out UCE loci and contigs identified as duplicates in the dataset. These are identified as duplicates when probes designed for different UCE loci retrieve the same contig, or when multiple contigs, supposedly representing different genomic regions, are matched with probes targeting a single UCE locus. 
 
 To recover these duplicates, the `--keep-duplicates` option is used. This option allows the recovery, in the output file `duplicates.txt`, of duplicates detected per taxon at each locus. In subsequent processing steps, we select among these duplicates, for each UCE locus, the contig with the greatest length and highest percentage of identity relative to the corresponding locus in other taxa.
+
+💾 By default, the search results are displayed in the terminal. These results include the number of UCE loci captured within the total contigs for each taxon, as well as the UCE loci and contigs identified as duplicates that were removed. However, by using the --csv option, these results can be saved to a CSV file.
 
 ### 4.2 Extracting UCE loci
 
@@ -135,15 +139,37 @@ phyluce_assembly_get_match_counts \
     --output taxon_set1-taxa-incomplete.conf
 ```
 The above command generates an output called `all-taxa-incomplete.conf`. We need this output in FASTA format for the next step. To do this, we run the following command:
-### 4.3 ASTRAL
-
-Generate gene trees with IQ-TREE, then run:
-
-```bash
-java -jar astral.jar -i *.treefile -o output.treefile
+```
+phyluce_assembly_get_fastas_from_match_counts \
+    --contigs data/spades_assemblies \
+    --locus-db uce-search-results/probe.matches.sqlite \
+    --match-count-output taxon_set1-taxa-incomplete.conf \
+    --output taxon_set1-taxa-incomplete.fasta \
+    --incomplete-matrix taxon_set1-taxa-incomplete.incomplete \
+    --log-path log
 ```
 
----
+If we want to analyze the statistics for each taxon, we need to separate the all-taxa-incomplete.fasta file into individual FASTA files for each taxon, each containing its respective captured UCEs.
+
+To do this, you must first split the `taxon_set1-taxa-incomplete.fasta` file by taxon using the following command:
+```
+phyluce_assembly_explode_get_fastas_file \
+    --input taxon_set1-taxa-incomplete.fasta \
+    --output exploded-fastas \
+    --by-taxon
+```
+Then, extract the statistics using the following command:
+```
+for i in exploded-fastas/*.fasta;
+do
+    phyluce_assembly_get_fasta_lengths --input $i --csv exploded_fastas.csv;
+done
+```
+☁️ The results will be printed to the terminal and saved to a csv file, `exploded_fastas.csv` in this example.
+
+
+
+
 
 ## 5. REFERENCES
 
