@@ -40,7 +40,7 @@ To perform quality filtering (removal of low-quality bases) and cleaning of the 
 
 An example of running the script would be:
 ```
-bash fastp.sh [input path:~/Desktop/Diego/data/fastq] [output path:~/Desktop/Diego/data/clean_reads_fastq]
+bash fastp.sh [input path:~/Desktop/Diego/work_directory/data/fastq] [output path:~/Desktop/Diego/work_directory/data/clean_reads_fastq]
 ```
 
 ### 2.3 CD-HIT-DUP
@@ -49,7 +49,7 @@ Before running assemblies with SPAdes, it is recommended to remove potential con
 
 The process is automated through the cd-hit-dup.sh script, which takes the raw data as input and generates cleaned output files ready for assembly.
 ```
-bash cd-hit-dup.sh [input path:~/Desktop/Diego/data/clean_reads_fastq] [output path:~/Desktop/Diego/data/clean_reads_cdhitdup]
+bash cd-hit-dup.sh [input path:~/Desktop/Diego/work_directory/data/clean_reads_fastq] [output path:~/Desktop/Diego/work_directory/data/clean_reads_cdhitdup]
 ```
 
 ## 3. Contig assembly
@@ -60,15 +60,15 @@ The SPAdes program integrated into Phyluce requires a configuration file (assemb
 From within the folder containing your cleaned sample directories:
 ```
 echo "[samples]" > ../assembly.conf
-for i in *; do echo "$i:/home/intern/Desktop/Diego/data/clean_reads_cdhitdup/$i/"; done >> ../assembly.conf
+for i in *; do echo "$i:/home/intern/Desktop/Diego/work_directory/data/clean_reads_cdhitdup/$i/"; done >> ../assembly.conf
 ```
 ✏️ Example assembly.conf:
 ```
 [samples]
-Acteon_sp:/home/intern/Desktop/Diego/data/clean_reads_cdhitdup/Acteon_sp
-Acteon_tornatilis:/home/intern/Desktop/Diego/data/clean_reads_cdhitdup/Acteon_tornatilis
-Akera_bullata:/home/intern/Desktop/Diego/data/clean_reads_cdhitdup/Akera_bullata
-Ammonicera_sp:/home/intern/Desktop/Diego/data/clean_reads_cdhitdup/Ammonicera_sp
+Acteon_sp:/home/intern/Desktop/Diego/work_directory/data/clean_reads_cdhitdup/Acteon_sp
+Acteon_tornatilis:/home/intern/Desktop/Diego/data/work_directory/clean_reads_cdhitdup/Acteon_tornatilis
+Akera_bullata:/home/intern/Desktop/Diego/work_directory/data/clean_reads_cdhitdup/Akera_bullata
+Ammonicera_sp:/home/intern/Desktop/Diego/work_directory/data/clean_reads_cdhitdup/Ammonicera_sp
 ```
 Run SPAdes assembly (from within the folder containing config file):
 
@@ -103,9 +103,9 @@ phyluce_assembly_match_contigs_to_probes \
 
 By default, the Phyluce function `phyluce_assembly_match_contigs_to_probes` filters out UCE loci and contigs identified as duplicates in the dataset. These are identified as duplicates when probes designed for different UCE loci retrieve the same contig, or when multiple contigs, supposedly representing different genomic regions, are matched with probes targeting a single UCE locus. 
 
-To recover these duplicates, the `--keep-duplicates` option is used. This option allows the recovery, in the output file `duplicates.txt`, of duplicates detected per taxon at each locus. In subsequent processing steps, we select among these duplicates, for each UCE locus, the contig with the greatest length and highest percentage of identity relative to the corresponding locus in other taxa.
+To recover these duplicates, the `--keep-duplicates` option is used. This option allows the recovery, in the output file `duplicates.txt`, of duplicates detected per taxon at each locus. In subsequent processing steps, we will recover part of these loci.
 
-💾 By default, the search results are displayed in the terminal. These results include the number of UCE loci captured within the total contigs for each taxon, as well as the UCE loci and contigs identified as duplicates that were removed. However, by using the --csv option, these results can be saved to a CSV file.
+☁️ By default, the search results are displayed in the terminal. These results include the number of UCE loci captured within the total contigs for each taxon, as well as the UCE loci and contigs identified as duplicates that were removed. However, by using the --csv option, these results can be saved to a CSV file.
 
 ### 4.2 Extracting UCE loci
 
@@ -148,8 +148,8 @@ phyluce_assembly_get_fastas_from_match_counts \
     --incomplete-matrix taxon_set1-taxa-incomplete.incomplete \
     --log-path log
 ```
-
-If we want to analyze the statistics for each taxon, we need to separate the all-taxa-incomplete.fasta file into individual FASTA files for each taxon, each containing its respective captured UCEs.
+#### 4.2.1 Analyse the statistics for each taxon
+☁️ If we want to analyze the statistics for each taxon, we need to separate the all-taxa-incomplete.fasta file into individual FASTA files for each taxon, each containing its respective captured UCEs.
 
 To do this, you must first split the `taxon_set1-taxa-incomplete.fasta` file by taxon using the following command:
 ```
@@ -165,13 +165,81 @@ do
     phyluce_assembly_get_fasta_lengths --input $i --csv exploded_fastas.csv;
 done
 ```
-☁️ The results will be printed to the terminal and saved to a csv file, `exploded_fastas.csv` in this example.
+The results will be printed to the terminal and saved to a csv file, `exploded_fastas.csv` in this example.
+
+Example of statistics output:
+```
+## samples id,UCE loci,total bp,mean length,95 CI length,min length,max length,median legnth,contigs >1kb
+Acteon_sp.unaligned.fasta,1395,756820,477.8030888030888,3.765000046699546,308,577,520.0,12
+Acteon_tornatilis.unaligned.fasta,1455,776310,605.4563888030888,4.657000046699546,208,420,402.0,12
+```
+
+#### 4.2.2 Recovering duplicate UCE loci
+Recall that in step 4.1, all UCE loci identified as duplicates for a given taxon are discarded—this information is stored in the `duplicates.txt` file. This means that any UCE locus for which more than one contig was found is completely excluded from the dataset for that taxon, resulting in a loss of information.
+
+To recover part of this information, we process the `duplicates.txt` file to select, for each duplicated UCE locus, the best representative contig.
+
+First, we create a directory where we will carry out the recovery of the duplicates:
+```
+mkdir -p duplicates
+```
+Then, we move the list, which indicates which duplicates have been identified for each UCE locus and taxon into, this directory:
+```
+mv duplicates.txt duplicates/
+```
+Next, we run the Python script `phyluce_assembly_parse_duplicates_file.py` to recover these duplicates in FASTA format:
+```
+python ./phyluce_assembly_parse_duplicates_file.py --contigs data/spades_assemblies --duplicates-file duplicates/duplicates.txt --output duplicates/duplicates.fasta
+```
+And inside ` duplicates/`:
+```
+cd duplicates/
+```
+```
+phyluce_assembly_explode_get_fastas_file \
+    --input duplicates.fasta \
+    --output exploded-duplicates-fastas \
+    --by-taxon
+```
+To select the most representative contig, we rely on two criteria: the longest contig and the highest percentage identity relative to the corresponding locus in other taxa. By default, the script `phyluce_assembly_parse_duplicates_file.py` labels this contig as DUPE1. To recover these DUPE1 contigs, we run the following commands:
+```
+cd exploded-duplicates-fastas
+```
+```
+cat *-DUPE1.unaligned.fasta >> duplicates_DUPE1.fasta
+```
+```
+sed -i 's/_DUPE1//g' duplicates_DUPE1.fasta
+```
+Now, the selected contigs stored in the FASTA file `duplicates_DUPE1.fasta` are concatenated with the rest of the contigs from the FASTA file `taxon_set1-taxa-incomplete.fasta`.
+
+First, we make a copy of the `duplicates_DUPE1.fasta` file into the main working directory, in this case `work_directory/`:
+```
+cp duplicates_DUPE1.fasta ../../ 
+```
+And finally, we concatenate both files:
+
+```
+cat taxon_set1-taxa-incomplete.fasta duplicates_DUPE1.fasta >> final-taxon_set1-taxa-incomplete.fasta
+```
+
+To find out how many duplicates we have recovered per taxon, we can recalculate the statistics from step 4.2.1 and compare how many UCE loci have been recovered.
+
+To do this, we repeat the steps from section 4.2.1, but this time using the file `final-taxon_set1-taxa-incomplete.fasta`:
+```
+phyluce_assembly_explode_get_fastas_file \
+    --input final-taxon_set1-taxa-incomplete.fasta \
+    --output exploded-fastas-final-set1 \
+    --by-taxon
+```
+```
+for i in exploded-fastas-final-set1/*.fasta;
+do
+    phyluce_assembly_get_fasta_lengths --input $i --csv exploded_fastas.csv;
+done
+```
 
 
-
-
-
-## 5. REFERENCES
 
 List of cited tools, publications, and external scripts used in the workflow. Be sure to include citations for:
 
