@@ -134,6 +134,7 @@ phyluce_assembly_get_match_counts \
     --incomplete-matrix \
     --output taxon_set1-taxa-incomplete.conf
 ```
+The above command generates an output called `all-taxa-incomplete.conf`. We need this output in FASTA format for the next step. To do this, we run the following command:
 ### 4.3 ASTRAL
 
 Generate gene trees with IQ-TREE, then run:
