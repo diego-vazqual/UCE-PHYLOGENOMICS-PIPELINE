@@ -148,7 +148,7 @@ phyluce_assembly_get_fastas_from_match_counts \
     --incomplete-matrix taxon_set1-taxa-incomplete.incomplete \
     --log-path log
 ```
-#### 4.2.1 Analyse the statistics for each taxon
+#### 4.2.1. Analyse the statistics for each taxon
 ☁️ If we want to analyze the statistics for each taxon, we need to separate the all-taxa-incomplete.fasta file into individual FASTA files for each taxon, each containing its respective captured UCEs.
 
 To do this, you must first split the `taxon_set1-taxa-incomplete.fasta` file by taxon using the following command:
@@ -174,7 +174,7 @@ Acteon_sp.unaligned.fasta,1395,756820,477.8030888030888,3.765000046699546,308,57
 Acteon_tornatilis.unaligned.fasta,1455,776310,605.4563888030888,4.657000046699546,208,420,402.0,12
 ```
 
-#### 4.2.2 Recovering duplicate UCE loci
+#### 4.2.2. Recovering duplicate UCE loci
 Recall that in step 4.1, all UCE loci identified as duplicates for a given taxon are discarded—this information is stored in the `duplicates.txt` file. This means that any UCE locus for which more than one contig was found is completely excluded from the dataset for that taxon, resulting in a loss of information.
 
 To recover part of this information, we process the `duplicates.txt` file to select, for each duplicated UCE locus, the best representative contig.
@@ -241,7 +241,8 @@ do
 done
 ```
 
-
+## 5. Alignment
+### 5.1 Aligning UCE loci
 
 List of cited tools, publications, and external scripts used in the workflow. Be sure to include citations for:
 
