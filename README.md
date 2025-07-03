@@ -99,11 +99,28 @@ phyluce_assembly_match_contigs_to_probes \
     --output uce-search-results \
     --keep-duplicates duplicates.txt
 ```
-By default, the Phyluce function `phyluce_assembly_match_contigs_to_probes` filters out UCE loci and contigs identified as duplicates in the dataset. These are identified as duplicates when probes designed for different UCE loci retrieve the same contig, or when multiple contigs, supposedly representing different genomic regions, are matched with probes targeting a single UCE locus. To recover these duplicates, the `--keep-duplicates` option is used.
-### 4.2 ExaBayes
+By default, the Phyluce function `phyluce_assembly_match_contigs_to_probes` filters out UCE loci and contigs identified as duplicates in the dataset. These are identified as duplicates when probes designed for different UCE loci retrieve the same contig, or when multiple contigs, supposedly representing different genomic regions, are matched with probes targeting a single UCE locus. 
 
-Run with `exabayes.sh`, analyze convergence with `postProcParam`, `sdsf`, `credibleSet`, etc.
+To recover these duplicates, the `--keep-duplicates` option is used. This option allows the recovery, in the output file `duplicates.txt`, of duplicates detected per taxon at each locus. In subsequent processing steps, we select among these duplicates, for each UCE locus, the contig with the greatest length and highest percentage of identity relative to the corresponding locus in other taxa.
 
+### 4.2 Extracting UCE loci
+
+Once the UCE loci have been identified, the next step is to define the taxa to be included in the analysis. To do this, it is necessary to compile a list with the names of these taxa and create a configuration file indicating which UCE loci are present in each one.
+
+If you don't have a list of the taxa you want to use, but you do have a folder containing the corresponding files for those taxa (e.g., spades_assemblies), you can retrieve their names using the following command:
+```
+ls -1 [Name of the directory containing the files of the taxa you want to use]
+```
+Based on the list of taxa we want to use, we will create a file using the `nano` editor, which we will name ` taxon-set.conf`.  On the first line of the file, you should write the name you want to assign to the taxon set, for example, `[taxon_set1]`. Then, paste the names of the taxa, one per line.
+
+Example taxon-set.conf:
+```
+[taxon_set1]
+Acteon_sp
+Acteon_tornatilis
+Akera_bullata
+Ammonicera_sp
+```
 ### 4.3 ASTRAL
 
 Generate gene trees with IQ-TREE, then run:
