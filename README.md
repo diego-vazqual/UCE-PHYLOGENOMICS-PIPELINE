@@ -62,7 +62,7 @@ From within the folder containing your cleaned sample directories:
 echo "[samples]" > ../assembly.conf
 for i in *; do echo "$i:/home/intern/Desktop/Diego/data/clean_reads_cdhitdup/$i/"; done >> ../assembly.conf
 ```
-Example assembly.conf:
+✏️ Example assembly.conf:
 ```
 [samples]
 Acteon_sp:/home/intern/Desktop/Diego/data/clean_reads_cdhitdup/Acteon_sp
@@ -115,7 +115,7 @@ ls -1 [Name of the directory containing the files of the taxa you want to use]
 
 Based on the list of taxa we want to use, we will create a file using the `nano` editor, which we will name ` taxon-set.conf`.  On the first line of the file, you should write the name you want to assign to the taxon set, for example, `[taxon_set1]`. Then, paste the names of the taxa, one per line.
 
-Example taxon-set.conf:
+✏️ Example taxon-set.conf:
 ```
 [taxon_set1]
 Acteon_sp
