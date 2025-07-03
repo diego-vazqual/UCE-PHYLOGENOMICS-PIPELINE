@@ -111,6 +111,8 @@ If you don't have a list of the taxa you want to use, but you do have a folder c
 ```
 ls -1 [Name of the directory containing the files of the taxa you want to use]
 ```
+⚠️ Make sure that the taxon names in your list exactly match the names of the folders or files in the assembly directory. For this reason, if no list has been prepared in advance, it's useful to extract the names directly from the assembly folder to avoid mistakes or missing taxa. 
+
 Based on the list of taxa we want to use, we will create a file using the `nano` editor, which we will name ` taxon-set.conf`.  On the first line of the file, you should write the name you want to assign to the taxon set, for example, `[taxon_set1]`. Then, paste the names of the taxa, one per line.
 
 Example taxon-set.conf:
@@ -120,6 +122,17 @@ Acteon_sp
 Acteon_tornatilis
 Akera_bullata
 Ammonicera_sp
+```
+💡 If you later want to change the taxon set, you can edit this configuration file (` taxon-set.conf`) directly using the `nano` editor and add a new list with a different header, such as `[taxon_set2]`.
+
+Having configured the taxon list, we can run the following command to generate the initial list of UCE loci enriched in each taxon:
+```
+phyluce_assembly_get_match_counts \
+    --locus-db uce-search-results/probe.matches.sqlite \
+    --taxon-list-config taxon-set.conf \
+    --taxon-group 'taxon_set1' \
+    --incomplete-matrix \
+    --output taxon_set1-taxa-incomplete.conf
 ```
 ### 4.3 ASTRAL
 
