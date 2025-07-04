@@ -483,7 +483,7 @@ for i in exploded-fastas-50p/*.fasta; do
     phyluce_assembly_get_fasta_lengths --input "$i" --csv >> fasta_lengths_50p.csv  
 done
 ```
-### 5.5 Final data matrices
+### 5.5 Preparing data for phylogenomic analysis
 To ensure that IQ-TREE2, ExaBayes, and ASTRAL can recognize our files, we need to concatenate all our UCEs from the matrix into a single file in phylip format.
 
 To do this, run:
@@ -503,6 +503,9 @@ These parameters can be adjusted to suit your data by modifying the `-m` (model)
 iqtree2 --seqtype DNA --ninit 10 -B 1500 -s mafft-clean-nexus-internal-trimmed-gblocks-clean-50p-IQTree/mafft-clean-nexus-internal-trimmed-gblocks-clean-50p-IQTree.phylip --prefix iqtree-GHOST-50p -m GTR+FO*H4 -T 24 --rcluster 10 --mrate G,R,E
 ```
 ### 6.2 Exabayes
+To infer the tree using Bayesian statistics, we will use the ExaBayes program. This software requires a considerable amount of memory and is a slow process. Therefore, a compiler is used to run parallel processes (MPI), and in our case, the analysis was performed in a high-performance computing (HPC) environment managed with Slurm. We also recommend using tmux or another background process manager, as this is a time-consuming task.
+
+To automate the process, we created a script called `exabayes.sh`, which runs four successive executions. To run this analysis using the script, you will need a configuration file `config.nex` that specifies the parameters and variables for the Bayesian analysis. Be sure to review and adjust this file according to the requirements of your study.
 
 
 
