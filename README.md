@@ -4,14 +4,22 @@
 
 ## INDEX
 
-1. [Requirements](#1-requirements)
-2. [Clean reads](#2-clean-reads)
-3. [Contig assembly](#3-contig-assembly)
-4. [Target enrichment](#4-target-enrichment)
-5. [Alignment](#5-Alignment)
-6. [Phylogenomic Analysis](#6-phylogenomic-analysis)
-7. [References](7-references)
-
+1. [Requirements](#1-requirements)  
+2. [Clean reads](#2-clean-reads)  
+3. [Contig assembly](#3-contig-assembly)  
+4. [Target enrichment](#4-target-enrichment)  
+5. [Alignment](#5-alignment)  
+   - [5.1 Aligning UCE loci](#51-aligning-uce-loci)  
+   - [5.2 Gblocks](#52-gblocks)  
+   - [5.3 Alignment cleaning](#53-alignment-cleaning)  
+   - [5.4 Remove long terminal branches](#54-remove-long-terminal-branches)  
+   - [5.5 Preparing data for phylogenomic analysis](#55-preparing-data-for-phylogenomic-analysis)  
+   - [5.6 Final data matrices](#56-final-data-matrices)  
+6. [Phylogenomic Analysis](#6-phylogenomic-analysis)  
+   - [6.1 IQ-TREE2](#61-iq-tree2)  
+   - [6.2 ExaBayes](#62-exabayes)  
+   - [6.3 ASTRAL-III](#63-astral-iii)  
+7. [References](#7-references)
 ---
 
 ## 1. REQUIREMENTS
