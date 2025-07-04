@@ -390,13 +390,14 @@ An example of how to run the script from the `work_directory/` is:
 ```
 python3 remove_long_branches.py
 ```
+
 ☁️ To determine how many loci have been removed per taxon, we can recalculate the statistics from steps `4.2.1` and `4.2.2` and compare how many UCE loci have been recovered.
  
  First we convert the alignments to fasta format:
   ```
 phyluce_align_convert_one_align_to_another \
---alignments mafft-clean-nexus-internal-trimmed-gblocks-clean \
---output mafft-clean-fastas-internal-trimmed-gblocks-clean \
+--alignments mafft-nexus-internal-trimmed-gblocks-clean \
+--output mafft-fastas-internal-trimmed-gblocks-clean \
 --input-format nexus \
 --output-format fasta \
 --cores 24 \
@@ -406,20 +407,19 @@ Next, we will tag each file with the name of the corresponding UCE using the `ad
  ```
 bash add_tag.sh
 ```
-Once all the UCEs are labeled, we need to concatenate all the files into a single monolithic file, similar to the process done previously in the sections on `4.2.1` and `4.2.2`.
- ```
-cd mafft-clean-fastas-internal-trimmed-gblocks-clean-50p
-cat * >>  all-fastas-50p
+Once all the UCEs are labeled, we need to concatenate all the files into a single monolithic file, similar to the process done previously.
+cd mafft-fastas-internal-trimmed-gblocks-clean
+cat * >>  all-fastas-clean
 ```
  ```
 phyluce_assembly_explode_get_fastas_file \
---input all-fastas-50p \
---output exploded-fastas-50p \
+--input all-fastas-clean \
+--output exploded-fastas-clean \
 ```
  ```
 echo "Sample ID,UCE ,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > fasta_lengths_clean.csv
-for i in exploded-fastas-50p/*.fasta; do  
-    phyluce_assembly_get_fasta_lengths --input "$i" --csv >> fasta_lengths_50p.csv  
+for i in exploded-fastas-clean/*.fasta; do  
+    phyluce_assembly_get_fasta_lengths --input "$i" --csv >> fasta_lengths_clean.csv  
 done
 ```
 
@@ -451,14 +451,12 @@ phyluce_align_get_only_loci_with_min_taxa \
 ```
 In the `--taxa` option, you must specify the number of taxa present, and in the `--percent` option, the desired occupancy threshold for the matrix (0.5 = 50%; 0.75 = 75%...).
 
-### 5.5 Count UCEs for each matrix
-☁️ To obtain statistics on how many UCEs have been retained for each species, run the following commands:
+☁️ To obtain statistics on how many ECUs have been conserved for each species, we can recalculate the statistics in a similar way as above.
 
- First we convert the alignments to fasta format:
  ```
 phyluce_align_convert_one_align_to_another \
---alignments mafft-clean-nexus-internal-trimmed-gblocks-clean-50p \
---output mafft-clean-fastas-internal-trimmed-gblocks-clean-50p \
+--alignments mafft-nexus-internal-trimmed-gblocks-clean-50p \
+--output mafft-fastas-internal-trimmed-gblocks-clean-50p \
 --input-format nexus \
 --output-format fasta \
 --cores 24 \
