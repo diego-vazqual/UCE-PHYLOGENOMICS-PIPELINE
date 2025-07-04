@@ -352,8 +352,12 @@ mkdir RAxML_info
 mv RAxML_info.uce* RAxML_info
 ```
 
-Una vez todo organizado, renombraremos los terminales de los arboles genicos individuales obtenidos con sus nombres originales, pero solo los del directorio genes_tree/RAxML_bipartitions, que son los que utilizaremos para hacer el filtrado de ramas largas. Para ello ejecutamos el script XXX
+Once everything is organized, we will rename the tips of the individual gene trees using their original names, but only those located in the `genes_tree/RAxML_bipartitions` directory, as these are the ones that will be used for long branch filtering. To do this, we run the `rename_taxa.py` script, which takes as input the gene trees for each locus from the `genes_tree/RAxML_bipartitions` folder and a mapping file called `taxa_map.txt`.
 
+An example of running the script in `work_directory/` would be: 
+```
+python3 rename_taxa.py
+```
 
 
 Oaprimero hay  que cambiar los nombres de estos 
