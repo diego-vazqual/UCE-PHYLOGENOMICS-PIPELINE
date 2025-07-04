@@ -368,7 +368,7 @@ Each taxon is first assigned to a group (e.g., at the family level) using a pred
 
 Branch length distributions are calculated separately for both categories. A terminal branch is removed if its length exceeds the mean + 2.7 standard deviations of both distributions: at the locus level and the taxon level.
 
-The threshold value used here is 2.7 (Fedosov et al., 2024), but it can be adjusted depending on the nature of the data and the desired level of stringency (higher values are more stringent; lower values are less so).
+The threshold value used here is 2.7 (Fedosov et al., 2024), but it can be adjusted depending on the nature of the data and the desired level of stringency (higher values are more stringent; lower values are less so). If you wish to adjust these thresholds, you must modify the corresponding values in the **FILTERING PARAMETERS** section of the `remove_long_branches.py` script.
 
 ✏️ Example `spms_info.txt`:
 ```
@@ -390,13 +390,100 @@ An example of how to run the script from the `work_directory/` is:
 ```
 python3 remove_long_branches.py
 ```
+☁️ To determine how many loci have been removed per taxon, we can recalculate the statistics from steps `4.2.1` and `4.2.2` and compare how many UCE loci have been recovered.
+ 
+ First we convert the alignments to fasta format:
+  ```
+phyluce_align_convert_one_align_to_another \
+--alignments mafft-clean-nexus-internal-trimmed-gblocks-clean \
+--output mafft-clean-fastas-internal-trimmed-gblocks-clean \
+--input-format nexus \
+--output-format fasta \
+--cores 24 \
+--log-path log
+```
+Next, we will tag each file with the name of the corresponding UCE using the `add_tag.sh` script.
+ ```
+bash add_tag.sh
+```
+Once all the UCEs are labeled, we need to concatenate all the files into a single monolithic file, similar to the process done previously in the sections on `4.2.1` and `4.2.2`.
+ ```
+cd mafft-clean-fastas-internal-trimmed-gblocks-clean-50p
+cat * >>  all-fastas-50p
+```
+ ```
+phyluce_assembly_explode_get_fastas_file \
+--input all-fastas-50p \
+--output exploded-fastas-50p \
+```
+ ```
+echo "Sample ID,UCE ,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > fasta_lengths_clean.csv
+for i in exploded-fastas-50p/*.fasta; do  
+    phyluce_assembly_get_fasta_lengths --input "$i" --csv >> fasta_lengths_50p.csv  
+done
+```
 
 
+### 5.4 Final data matrices
+At this stage, we are interested in minimizing noise in the data and increasing confidence in phylogenetic inferences by removing loci or genes that may be less informative or more prone to error, as well as eliminating missing data. To achieve this, we generate occupancy matrices with different thresholds.
 
+☁️ Using the Phyluce function `phyluce_align_get_align_summary_data`, we can first obtain information about the number of loci in matrices with varying levels of completeness, the total number of available loci, among other useful metrics.
 
+To obtain this summary, use the following command:
+```
+phyluce_align_get_align_summary_data \
+    --alignments mafft-nexus-internal-no-trimmed-gblocks-clean \
+    --cores 24 \
+    --log-path log 
+```
 
-Preguntar a ChatGPT
+A 50% occupancy matrix means that each column of the matrix (i.e., each locus) must be present in at least 50% of the taxa to be included. This helps reduce noise and improve data quality for phylogenetic analysis.
 
+For example, to generate a 50% occupancy matrix, use the following command:
+```
+phyluce_align_get_only_loci_with_min_taxa \
+    --alignments mafft-nexus-internal-no-trimmed-gblocks-clean \
+    --taxa 117 \
+    --percent 0.50 \
+    --output mafft-clean-nexus-internal-trimmed-gblocks-clean-50p \
+    --cores 24 \
+    --log-path log
+```
+In the `--taxa` option, you must specify the number of taxa present, and in the `--percent` option, the desired occupancy threshold for the matrix (0.5 = 50%; 0.75 = 75%...).
+
+### 5.5 Count UCEs for each matrix
+☁️ To obtain statistics on how many UCEs have been retained for each species, run the following commands:
+
+ First we convert the alignments to fasta format:
+ ```
+phyluce_align_convert_one_align_to_another \
+--alignments mafft-clean-nexus-internal-trimmed-gblocks-clean-50p \
+--output mafft-clean-fastas-internal-trimmed-gblocks-clean-50p \
+--input-format nexus \
+--output-format fasta \
+--cores 24 \
+--log-path log
+```
+Next, we will tag each file with the name of the corresponding UCE using the `add_tag.sh` script.
+ ```
+bash add_tag.sh
+```
+Once all the UCEs are labeled, we need to concatenate all the files into a single monolithic file, similar to the process done previously in the sections on `4.2.1` and `4.2.2`.
+ ```
+cd mafft-clean-fastas-internal-trimmed-gblocks-clean-50p
+cat * >>  all-fastas-50p
+```
+ ```
+phyluce_assembly_explode_get_fastas_file \
+--input all-fastas-50p \
+--output exploded-fastas-50p \
+```
+ ```
+echo "Sample ID,UCE ,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > fasta_lengths_clean.csv
+for i in exploded-fastas-50p/*.fasta; do  
+    phyluce_assembly_get_fasta_lengths --input "$i" --csv >> fasta_lengths_50p.csv  
+done
+```
 
 
 List of cited tools, publications, and external scripts used in the workflow. Be sure to include citations for:
