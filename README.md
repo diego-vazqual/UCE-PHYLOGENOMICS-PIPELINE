@@ -293,7 +293,28 @@ phyluce_align_remove_locus_name_from_files \
     --log-path log
 ```
 
+### 5.4 Remove long terminal branches
+Even after the initial cleaning steps, alignments may still contain atypical sequences, which could represent chimeras, contaminants, or non-homologous alignments. These sequences can introduce artifacts in subsequent phylogenetic inference, particularly by generating abnormally long terminal branches, which may lead to the phenomenon known as long branch attraction (LBA). This occurs when highly divergent sequences are incorrectly grouped due to elevated substitution rates or high sequence dissimilarity.
 
+To mitigate this issue, we identified and removed abnormally long terminal branches using the following steps.
+
+To identify and remove abnormally long terminal branches, we first build gene trees from each alignment. For this step, alignments must be in  `.phylip` format.
+
+⚠️ Important: The PHYLIP format requires taxon names to be no longer than 10 characters. If names exceed this limit, programs may throw read errors, truncate names, or produce incorrect results.
+
+To avoid these issues, taxon names must be renamed using a mapping file `taxa_map.txt` like the example below:
+```
+Acteon_sp    Taxa1
+Acteon_tornatilis    Taxa2
+Akera_bullata    Taxa3
+Ammonicera_sp    Taxa 4
+```
+In this file `taxa_map.txt`, the first column contains the original taxon names (as they appear in the alignments), and the second column, separated by a tab, contains the new shortened names. In this example, we use generic identifiers like Taxa1, Taxa2, etc.
+
+
+
+Oaprimero hay  que cambiar los nombres de estos 
+fueron reconstruidos utilizando RAxML v8.2.12 (Stamatakis, 2006) bajo el modelo GTRGAMMA con 100 réplicas de bootstrap (script single_gene_trees.sh). Los árboles resultantes se usaron para identificar y eliminar ramas terminales anormalmente largas,
 
 
 
