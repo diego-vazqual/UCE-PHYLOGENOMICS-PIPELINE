@@ -23,7 +23,7 @@
 ---
 
 ## 1. REQUIREMENTS
-
+* ASTRAL-III ([https://sites.google.com/view/cd-hit](https://github.com/smirarab/ASTRAL))
 * CD-HIT-DUP (https://sites.google.com/view/cd-hit)
 * ExaBayes v1.5 (https://cme.h-its.org/exelixis/web/software/exabayes/)
 * Fastp (https://github.com/OpenGene/fastp)
