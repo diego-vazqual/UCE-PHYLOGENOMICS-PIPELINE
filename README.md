@@ -33,7 +33,7 @@ The command divides the total number of lines by 4, since each read in FASTQ for
 ```
 for i in *_R1_*.fastq.gz; do echo $i; gunzip -c $i | wc -l | awk '{print $1/4}'; done
 ```
-⚠️ If R1 and R2 have a different number of readings, it will be necessary to match them before continuing.
+⚠️ Important: If R1 and R2 have a different number of readings, it will be necessary to match them before continuing.
 
 ### 2.2 FASTP
 To perform quality filtering (removal of low-quality bases) and cleaning of the FASTQ files (removal of adapter sequences and duplicate reads), we use a script called `fastp.sh`. This script takes as input a folder containing the raw FASTQ files and generates cleaned sequences in an output directory (e.g., clean-fastq).
@@ -72,7 +72,7 @@ Ammonicera_sp:/home/intern/Desktop/Diego/work_directory/data/clean_reads_cdhitdu
 ```
 Run SPAdes assembly (from within the folder containing config file):
 
-⚠️ Before running `phyluce_assembly_assemblo_spades`, make sure you have activated the environment where Phyluce is installed:
+⚠️ Important: Before running `phyluce_assembly_assemblo_spades`, make sure you have activated the environment where Phyluce is installed:
 ```
 conda activate phyluce-1.7.2
 ```
@@ -115,7 +115,7 @@ If you don't have a list of the taxa you want to use, but you do have a folder c
 ```
 ls -1 [Name of the directory containing the files of the taxa you want to use]
 ```
-⚠️ Make sure that the taxon names in your list exactly match the names of the folders or files in the assembly directory. For this reason, if no list has been prepared in advance, it's useful to extract the names directly from the assembly folder to avoid mistakes or missing taxa. 
+⚠️ Important: Make sure that the taxon names in your list exactly match the names of the folders or files in the assembly directory. For this reason, if no list has been prepared in advance, it's useful to extract the names directly from the assembly folder to avoid mistakes or missing taxa. 
 
 Based on the list of taxa we want to use, we will create a file using the `nano` editor, which we will name ` taxon-set.conf`.  On the first line of the file, you should write the name you want to assign to the taxon set, for example, `[taxon_set1]`. Then, paste the names of the taxa, one per line.
 
@@ -302,7 +302,7 @@ To identify and remove abnormally long terminal branches, we first build gene tr
 
 ⚠️ Important: The PHYLIP format requires taxon names to be no longer than 10 characters. If names exceed this limit, programs may throw read errors, truncate names, or produce incorrect results.
 
-To avoid these issues, taxon names must be renamed using a mapping file `taxa_map.txt` like the example below:
+✏️To avoid these issues, taxon names must be renamed using a mapping file `taxa_map.txt` like the example below:
 ```
 Acteon_sp    Taxa1
 Acteon_tornatilis    Taxa2
@@ -354,15 +354,48 @@ mv RAxML_info.uce* RAxML_info
 
 Once everything is organized, we will rename the tips of the individual gene trees using their original names, but only those located in the `genes_tree/RAxML_bipartitions` directory, as these are the ones that will be used for long branch filtering. To do this, we run the `rename_taxa.py` script, which takes as input the gene trees for each locus from the `genes_tree/RAxML_bipartitions` folder and a mapping file called `taxa_map.txt`.
 
-An example of running the script in `work_directory/` would be: 
+An example of how to run the script from the `work_directory/` is:
 ```
 python3 rename_taxa.py
 ```
+To detect and remove abnormally long terminal branches, we use the `remove_long_branches.py` script, which applies a dual filtering approach:
+
+(i) Branch length distribution per locus: branch lengths are analyzed within each individual gene tree.
+
+(ii) Branch length distribution per taxon: branch lengths are analyzed across all gene trees where the taxon is present.
+
+Each taxon is first assigned to a group (e.g., at the family level) using a predefined file `spms_info.txt`. Based on this classification, taxa are labeled in each tree as singletons (the only representative of their group in that tree) or non-singletons (present along with at least one other member of the same group).
+
+Branch length distributions are calculated separately for both categories. A terminal branch is removed if its length exceeds the mean + 2.7 standard deviations of both distributions: at the locus level and the taxon level.
+
+The threshold value used here is 2.7 (Fedosov et al., 2024), but it can be adjusted depending on the nature of the data and the desired level of stringency (higher values are more stringent; lower values are less so).
+
+✏️ Example `spms_info.txt`:
+```
+Bigtaxon    Taxon
+Acteonidae    Acteon_sp    
+Acteonidae    Acteon_tornatilis
+Aplysiida    Akera_bullata
+Ammonicera    Ammonicera_sp 
+```
+In the `spms_info.txt` file, the first column contains the assigned taxonomic group, headed by `Bigtaxon`, and the second column, headed by `Taxon` and separated by a tab, includes the original names of the taxa or terminals. For the script to run correctly, this file must follow that structure.
+
+The script takes as input the individual gene trees from the `genes_tree/RAxML_bipartitions` directory and the alignments in nexus format (`mafft-nexus-internal-no-trimmed-gblocks-clean`). As output, it generates the filtered individual gene trees in the `clean_genes_trees` directory and **directly modifies the original alignments**.
+
+⚠️ Important: If you wish to preserve the original alignments before filtering atypical sequences, make a copy, as the script directly overwrites the original files.
+
+☁️ Additionally, it generates detailed statistics, including: how many terminals were removed per taxon (`summary_report.txt`), in which loci those removals occurred (`long_branch_discards.tsv`), and how many terminals remained per alignment in each locus (`filtered_nexus_log.tsv`).
+
+An example of how to run the script from the `work_directory/` is:
+```
+python3 remove_long_branches.py
+```
 
 
-Oaprimero hay  que cambiar los nombres de estos 
-fueron reconstruidos utilizando RAxML v8.2.12 (Stamatakis, 2006) bajo el modelo GTRGAMMA con 100 réplicas de bootstrap (script single_gene_trees.sh). Los árboles resultantes se usaron para identificar y eliminar ramas terminales anormalmente largas,
 
+
+
+Preguntar a ChatGPT
 
 
 
