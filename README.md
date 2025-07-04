@@ -413,17 +413,17 @@ Once all the UCEs are labeled, we need to concatenate all the files into a singl
 cd mafft-fastas-internal-trimmed-gblocks-clean
 cat * >>  all-fastas-clean
  ```
+ ```
 phyluce_assembly_explode_get_fastas_file \
 --input all-fastas-clean \
 --output exploded-fastas-clean \
 ```
- ```
+```
 echo "Sample ID,UCE ,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > fasta_lengths_clean.csv
 for i in exploded-fastas-clean/*.fasta; do  
     phyluce_assembly_get_fasta_lengths --input "$i" --csv >> fasta_lengths_clean.csv  
 done
 ```
-
 
 ### 5.4 Final data matrices
 At this stage, we are interested in minimizing noise in the data and increasing confidence in phylogenetic inferences by removing loci or genes that may be less informative or more prone to error, as well as eliminating missing data. To achieve this, we generate occupancy matrices with different thresholds.
@@ -463,11 +463,9 @@ phyluce_align_convert_one_align_to_another \
 --cores 24 \
 --log-path log
 ```
-Next, we will tag each file with the name of the corresponding UCE using the `add_tag.sh` script.
  ```
 bash add_tag.sh
 ```
-Once all the UCEs are labeled, we need to concatenate all the files into a single monolithic file, similar to the process done previously in the sections on `4.2.1` and `4.2.2`.
  ```
 cd mafft-clean-fastas-internal-trimmed-gblocks-clean-50p
 cat * >>  all-fastas-50p
@@ -483,6 +481,7 @@ for i in exploded-fastas-50p/*.fasta; do
     phyluce_assembly_get_fasta_lengths --input "$i" --csv >> fasta_lengths_50p.csv  
 done
 ```
+
 
 
 List of cited tools, publications, and external scripts used in the workflow. Be sure to include citations for:
