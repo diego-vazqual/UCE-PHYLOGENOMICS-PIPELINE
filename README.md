@@ -435,7 +435,7 @@ for i in exploded-fastas-clean/*.fasta; do
 done
 ```
 
-### 5.4 Final data matrices
+### 5.5 Final data matrices
 At this stage, we are interested in minimizing noise in the data and increasing confidence in phylogenetic inferences by removing loci or genes that may be less informative or more prone to error, as well as eliminating missing data. To achieve this, we generate occupancy matrices with different thresholds.
 
 ☁️ Using the Phyluce function `phyluce_align_get_align_summary_data`, we can first obtain information about the number of loci in matrices with varying levels of completeness, the total number of available loci, among other useful metrics.
@@ -491,7 +491,7 @@ for i in exploded-fastas-50p/*.fasta; do
     phyluce_assembly_get_fasta_lengths --input "$i" --csv >> fasta_lengths_50p.csv  
 done
 ```
-### 5.5 Preparing data for phylogenomic analysis
+### 5.6 Preparing data for phylogenomic analysis
 To ensure that IQ-TREE2, ExaBayes, and ASTRAL can recognize our files, we need to concatenate all our UCEs from the matrix into a single file in phylip format.
 
 To do this, run:
