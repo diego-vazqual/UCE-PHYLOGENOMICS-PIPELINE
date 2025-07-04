@@ -47,7 +47,7 @@ bash fastp.sh [input path:~/Desktop/Diego/work_directory/data/fastq] [output pat
 
 Before running assemblies with SPAdes, it is recommended to remove potential contamination and duplicate reads present in the raw data. This is done using CD-HIT-DUP, a tool designed to detect duplicate sequences in FASTQ files.
 
-The process is automated through the cd-hit-dup.sh script, which takes the raw data as input and generates cleaned output files ready for assembly.
+The process is automated through the `cd-hit-dup.sh` script, which takes the raw data as input and generates cleaned output files ready for assembly.
 ```
 bash cd-hit-dup.sh [input path:~/Desktop/Diego/work_directory/data/clean_reads_fastq] [output path:~/Desktop/Diego/work_directory/data/clean_reads_cdhitdup]
 ```
