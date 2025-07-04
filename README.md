@@ -311,7 +311,7 @@ Ammonicera_sp    Taxa 4
 ```
 In this file `taxa_map.txt`, the first column contains the original taxon names (as they appear in the alignments), and the second column, separated by a tab, contains the new shortened names. In this example, we use generic identifiers like Taxa1, Taxa2, etc.
 
-
+The script `alignment_phylip_format.py` renames taxon names and converts alignments from nexus format to phylip format. This script takes as input the folder containing the alignments in nexus format (`mafft-phylip-nexus-internal-no-trimmed-gblocks-clean`) and the mapping file with the original and new taxon names (`taxa_map.txt`). The output is saved in a directory called `taxa_map.txt`.
 
 Oaprimero hay  que cambiar los nombres de estos 
 fueron reconstruidos utilizando RAxML v8.2.12 (Stamatakis, 2006) bajo el modelo GTRGAMMA con 100 réplicas de bootstrap (script single_gene_trees.sh). Los árboles resultantes se usaron para identificar y eliminar ramas terminales anormalmente largas,
