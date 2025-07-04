@@ -503,21 +503,23 @@ These parameters can be adjusted to suit your data by modifying the `-m` (model)
 iqtree2 --seqtype DNA --ninit 10 -B 1500 -s mafft-clean-nexus-internal-trimmed-gblocks-clean-50p-IQTree/mafft-clean-nexus-internal-trimmed-gblocks-clean-50p-IQTree.phylip --prefix iqtree-GHOST-50p -m GTR+FO*H4 -T 24 --rcluster 10 --mrate G,R,E
 ```
 ### 6.2 Exabayes
-To infer the tree using Bayesian statistics, we will use the ExaBayes program. This software requires a considerable amount of memory and is a slow process. Therefore, a compiler is used to run parallel processes (MPI), and in our case, the analysis was performed in a high-performance computing (HPC) environment managed with Slurm. We also recommend using tmux or another background process manager, as this is a time-consuming task.
+To infer the tree using Bayesian statistics, we will use the ExaBayes program. 
+
+📌 This software requires a considerable amount of memory and is a slow process. Therefore, a compiler is used to run parallel processes (MPI), and in our case, the analysis was performed in a high-performance computing (HPC) environment managed with Slurm. We also recommend using tmux or another background process manager, as this is a time-consuming task.
 
 To automate the process, we created a script called `exabayes.sh`, which runs four successive executions. To run this analysis using the script, you will need a configuration file `config.nex` that specifies the parameters and variables for the Bayesian analysis. Be sure to review and adjust this file according to the requirements of your study.
 
 Once the execution is complete, we will check the parameters to confirm that it was carried out correctly.
 
-Check if parameters converged (ESS should be >100, PSRF should be <1.1)
+• Check if parameters converged (ESS should be >100, PSRF should be <1.1)
 ```
 postProcParam -f ExaBayes_parameters.run-0.run1 ExaBayes_parameters.run-0.run2 ExaBayes_parameters.run-0.run3 ExaBayes_parameters.run-0.run4 -n combinedParams
 ```
-Calculate standard deviation of split frequencies (aka convergence, ASDSF should be <1%)
+• Calculate standard deviation of split frequencies (aka convergence, ASDSF should be <1%)
 ```
 sdsf -f ExaBayes_topologies.run-0.run1 ExaBayes_topologies.run-0.run2 ExaBayes_topologies.run-0.run3 ExaBayes_topologies.run-0.run4
 ```
-Verify that the chains have explored multiple topologies and that there is consistency among replicates (Number of topologies should be > 1,000).
+• Verify that the chains have explored multiple topologies and that there is consistency among replicates (Number of topologies should be > 1,000).
 ```
 grep -v "^#" ExaBayes_topologies.run-0.run1 | sort | uniq | wc -l
 grep -v "^#" ExaBayes_topologies.run-0.run2 | sort | uniq | wc -l
@@ -539,18 +541,35 @@ To do this, we run the script `alignment_phylip_format.py` on the alignment `maf
 Make sure the `taxa_map.txt` file is available in order to truncate the taxon names.
 
 Next, we reconstruct the individual gene trees using RAxML (-N 10 -m GTRGAMMA) with the script `astral_gene_trees.sh`. The script takes as input the phylip format alignments from the 50% occupancy matrix and generates an output containing the individual gene trees in a directory called `astral_raxml_output`.
+An example of how to run the script from the `work_directory/` is:
 ```
 bash astral_gene_trees.sh 
 ```
 
-* PHYLUCE
-* IQ-TREE
-* ExaBayes
-* Gblocks
-* Zorro
-* Any external Python or shell scripts used
+Then, we rename the individual trees with their original taxon names using the `rename_taxa.py` script, just as in section `5.4`, but this time applied to the trees located in the `astral_raxml_output/bestTree` directory.
 
----
+Finally, we run the following command to obtain the final ASTRAL-III tree:
+```
+java -jar /home/intern/Desktop/apps/ASTRAL/astral.5.7.8.jar -i astral_raxml_output/bestTree/*.genetree -o astral_sptree.treefile
+```
 
-> 🧠 *This README is meant to provide clear step-by-step instructions for setting up and running a full UCE phylogenomic pipeline, based on publicly available tools and custom scripts.*
+## 7. References
+
+• Crotty, S.M., Minh, B.Q., Bean, N.G., Holland, B.R., Tuke, J., Jermiin, L.S., Haeseler, A.V., 2019. GHOST: Recovering historical signal from heterotachously-evolved sequence alignments. Syst. Biol. 69, 249–264. https://doi.org/10.1093/sysbio/syz051
+
+• Wang, H.C., Minh, B.Q., Susko, S., Roger, A.J., 2018. Modeling site heterogeneity with posterior mean site frequency profiles accelerates accurate phylogenomic estimation. Syst. Biol., 67:216-235. https://doi.org/10.1093/sysbio/syx068
+
+• Kalyaanamoorthy, S., Minh, B.Q., Wong, T.K.F., Haeseler, A.V., Jermiin, L.S., 2017. ModelFinder: Fast Model Selection for Accurate Phyloge- netic Estimates, Nature Methods, 14:587–589. https://doi.org/10.1038/nmeth.4285
+
+• Faircloth, B.C., 2016. PHYLUCE is a software package for the analysis of conserved genomic loci. Bioinformatics 32, 786–788. https://doi.org/10.1093/bioinformatics/btv646.
+
+• Andre J. Aberer, Kassian Kobert, Alexandros Stamatakis, ExaBayes: Massively Parallel Bayesian Tree Inference for the Whole-Genome Era, Molecular Biology and Evolution, Volume 31, Issue 10, October 2014, Pages 2553–2556, https://doi.org/10.1093/molbev/msu236
+
+• Lam-Tung Nguyen, Heiko A. Schmidt, Arndt von Haeseler, Bui Quang Minh, IQ-TREE: A Fast and Effective Stochastic Algorithm for Estimating Maximum-Likelihood Phylogenies, Molecular Biology and Evolution, Volume 32, Issue 1, January 2015, Pages 268–274, https://doi.org/10.1093/molbev/msu300
+
+• Fu, L., Niu, B., Zhu, Z., Wu, S., & Li, W. (2012). CD-HIT: accelerated for clustering the next-generation sequencing data. Bioinformatics (Oxford, England), 28(23), 3150–3152. https://doi.org/10.1093/bioinformatics/bts565
+
+• For this work we have used the fastqCombinePairedEnd.py (https://github.com/enormandeau/Scripts) script created by Dr. Enric Normandeau, and the seqs2occupancy.py (https://github.com/tauanajc/phylo_scripts/blob/master/seqs2occupancy.py) script created by Dr. Tauana Cunha and Dr. Bruno Medeiros.
+
+• We have also used the scripts and commands available in the PHYLUCE tutorial (https://phyluce.readthedocs.io/en/latest/tutorials/tutorial-1.html), and the script zorro.py created by Dr. Tauana Cunha that has been modified for the present study.
 
