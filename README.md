@@ -483,6 +483,31 @@ for i in exploded-fastas-50p/*.fasta; do
     phyluce_assembly_get_fasta_lengths --input "$i" --csv >> fasta_lengths_50p.csv  
 done
 ```
+### 5.5 Final data matrices
+To ensure that IQ-TREE2, ExaBayes, and ASTRAL can recognize our files, we need to concatenate all our UCEs from the matrix into a single file in phylip format.
+
+To do this, run:
+ ```
+phyluce_align_concatenate_alignments \
+    --alignments mafft-clean-nexus-internal-trimmed-gblocks-clean-50p \
+    --output mafft-clean-nexus-internal-trimmed-gblocks-clean-50p-IQTree \
+    --phylip \
+    --log-path log
+```
+
+## 6. Phylogenomic Analysis
+### 6.1 IQ-TREE2
+To infer the maximum likelihood tree, we will use IQ-TREE2. In our case, we will use the GHOST model (GTR+FO*H4) and estimate node support values using the Ultrafast Bootstrap approximation with 1,500 replicates.
+These parameters can be adjusted to suit your data by modifying the `-m` (model) and `-B` (number of replicates) options.
+ ```
+iqtree2 --seqtype DNA --ninit 10 -B 1500 -s mafft-clean-nexus-internal-trimmed-gblocks-clean-50p-IQTree/mafft-clean-nexus-internal-trimmed-gblocks-clean-50p-IQTree.phylip --prefix iqtree-GHOST-50p -m GTR+FO*H4 -T 24 --rcluster 10 --mrate G,R,E
+```
+### 6.2 Exabayes
+
+
+
+
+
 
 
 
