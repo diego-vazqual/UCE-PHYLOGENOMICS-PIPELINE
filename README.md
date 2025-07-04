@@ -507,10 +507,28 @@ To infer the tree using Bayesian statistics, we will use the ExaBayes program. T
 
 To automate the process, we created a script called `exabayes.sh`, which runs four successive executions. To run this analysis using the script, you will need a configuration file `config.nex` that specifies the parameters and variables for the Bayesian analysis. Be sure to review and adjust this file according to the requirements of your study.
 
+Once the execution is complete, we will check the parameters to confirm that it was carried out correctly.
 
+Check if parameters converged (ESS should be >100, PSRF should be <1.1)
+```
+postProcParam -f ExaBayes_parameters.run-0.run1 ExaBayes_parameters.run-0.run2 ExaBayes_parameters.run-0.run3 ExaBayes_parameters.run-0.run4 -n combinedParams
+```
+Calculate standard deviation of split frequencies (aka convergence, ASDSF should be <1%)
+```
+sdsf -f ExaBayes_topologies.run-0.run1 ExaBayes_topologies.run-0.run2 ExaBayes_topologies.run-0.run3 ExaBayes_topologies.run-0.run4
+```
+Verify that the chains have explored multiple topologies and that there is consistency among replicates (Number of topologies should be > 1,000).
+```
+grep -v "^#" ExaBayes_topologies.run-0.run1 | sort | uniq | wc -l
+grep -v "^#" ExaBayes_topologies.run-0.run2 | sort | uniq | wc -l
+grep -v "^#" ExaBayes_topologies.run-0.run2 | sort | uniq | wc -l
+grep -v "^#" ExaBayes_topologies.run-0.run2 | sort | uniq | wc -l
+```
 
-
-
+Finally, the consensus tree must be generated:
+```
+consense -f ExaBayes_topologies.run-0.run1 ExaBayes_topologies.run-0.run2 ExaBayes_topologies.run-0.run3 ExaBayes_topologies.run-0.run4
+```
 
 
 
