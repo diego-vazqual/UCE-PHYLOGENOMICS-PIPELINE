@@ -362,9 +362,9 @@ python3 rename_taxa.py
 ```
 To detect and remove abnormally long terminal branches, we use the `remove_long_branches.py` script, which applies a dual filtering approach:
 
-(i) Branch length distribution per locus: branch lengths are analyzed within each individual gene tree.
+• Branch length distribution per locus: branch lengths are analyzed within each individual gene tree.
 
-(ii) Branch length distribution per taxon: branch lengths are analyzed across all gene trees where the taxon is present.
+• Branch length distribution per taxon: branch lengths are analyzed across all gene trees where the taxon is present.
 
 Each taxon is first assigned to a group (e.g., at the family level) using a predefined file `spms_info.txt`. Based on this classification, taxa are labeled in each tree as singletons (the only representative of their group in that tree) or non-singletons (present along with at least one other member of the same group).
 
