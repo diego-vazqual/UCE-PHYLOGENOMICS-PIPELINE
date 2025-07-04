@@ -275,9 +275,11 @@ phyluce_align_get_gblocks_trimmed_alignments_from_untrimmed \
 ```
 There are three possible Gblocks configurations, which differ in the values of the parameters `--b1`, `--b2`, `--b3`, and `--b4`. The choice of configuration depends on the nature of the data and the goals of the analysis:
 
-_Configuration 1_: --b1 0.5 --b2 0.85 --b3 4 --b4 8 # very restrictive
-_Configuration 2_: --b1 0.5 --b2 0.5 --b3 6 --b4 6 # intermediate
-_Configuration 3_: --b1 0.5 --b2 0.5 --b3 10 --b4 4 # very conservative
+**Configuration 1**: --b1 0.5 --b2 0.85 --b3 4 --b4 8 # very restrictive
+
+**Configuration 2**: --b1 0.5 --b2 0.5 --b3 6 --b4 6 # intermediate
+
+**Configuration 3**: --b1 0.5 --b2 0.5 --b3 10 --b4 4 # very conservative
 
 
 
