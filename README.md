@@ -521,8 +521,8 @@ Verify that the chains have explored multiple topologies and that there is consi
 ```
 grep -v "^#" ExaBayes_topologies.run-0.run1 | sort | uniq | wc -l
 grep -v "^#" ExaBayes_topologies.run-0.run2 | sort | uniq | wc -l
-grep -v "^#" ExaBayes_topologies.run-0.run2 | sort | uniq | wc -l
-grep -v "^#" ExaBayes_topologies.run-0.run2 | sort | uniq | wc -l
+grep -v "^#" ExaBayes_topologies.run-0.run3 | sort | uniq | wc -l
+grep -v "^#" ExaBayes_topologies.run-0.run4 | sort | uniq | wc -l
 ```
 
 Finally, the consensus tree must be generated:
@@ -530,9 +530,18 @@ Finally, the consensus tree must be generated:
 consense -f ExaBayes_topologies.run-0.run1 ExaBayes_topologies.run-0.run2 ExaBayes_topologies.run-0.run3 ExaBayes_topologies.run-0.run4
 ```
 
+### 6.3 ASTRAL-III
+Finally, to infer the coalescent trees, we will utilize ASTRAL-III, implemented in Java.
 
+To initiate the process, we first need to employ RAxML to generate a single gene trees. Just like in section `5.4`, we first need to rename the taxon names and convert the alignments from Nexus format to Phylip format, but in this case for the alignments of the 50% occupancy matrix `mafft-fastas-internal-trimmed-gblocks-clean-50p`.
 
-List of cited tools, publications, and external scripts used in the workflow. Be sure to include citations for:
+To do this, we run the script `alignment_phylip_format.py` on the alignment `mafft-fastas-internal-trimmed-gblocks-clean-50p`.
+Make sure the `taxa_map.txt` file is available in order to truncate the taxon names.
+
+Next, we reconstruct the individual gene trees using RAxML (-N 10 -m GTRGAMMA) with the script `astral_gene_trees.sh`. The script takes as input the phylip format alignments from the 50% occupancy matrix and generates an output containing the individual gene trees in a directory called `astral_raxml_output`.
+```
+bash astral_gene_trees.sh 
+```
 
 * PHYLUCE
 * IQ-TREE
