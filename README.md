@@ -327,6 +327,35 @@ An example of running the script would be:
 bash single_gene_trees.sh
 ```
 
+Once the script has finished, we organize the files generated inside the `gene_trees` directory using the following commands:
+```
+cd gene_trees
+```
+```
+mkdir RAxML_bestTree
+mv RAxML_bestTree.uce* RAxML_bestTree
+```
+```
+mkdir RAxML_bipartitions
+mv RAxML_bipartitions.uce* RAxML_bipartitions
+```
+```
+mkdir RAxML_bipartitionsBranchLabels
+mv RAxML_bipartitionsBranchLabels.uce* RAxML_bipartitionsBranchLabels
+```
+```
+mkdir RAxML_bootstrap
+mv RAxML_bootstrap.uce* RAxML_bootstrap
+```
+```
+mkdir RAxML_info
+mv RAxML_info.uce* RAxML_info
+```
+
+Una vez todo organizado, renombraremos los terminales de los arboles genicos individuales obtenidos con sus nombres originales, pero solo los del directorio genes_tree/RAxML_bipartitions, que son los que utilizaremos para hacer el filtrado de ramas largas. Para ello ejecutamos el script XXX
+
+
+
 Oaprimero hay  que cambiar los nombres de estos 
 fueron reconstruidos utilizando RAxML v8.2.12 (Stamatakis, 2006) bajo el modelo GTRGAMMA con 100 réplicas de bootstrap (script single_gene_trees.sh). Los árboles resultantes se usaron para identificar y eliminar ramas terminales anormalmente largas,
 
