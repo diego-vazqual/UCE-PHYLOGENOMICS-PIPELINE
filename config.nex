@@ -1,0 +1,19 @@
+begin RUN;
+    RUN PARAMETERS
+    numRuns 1                 # Number of independent replications
+    numGen 5000000            # Number of generations
+    diagFreq 5000             # Frequency for calculating convergence diagnoses
+    samplingFreq 500          # Frequency with which a tree is kept
+    printFreq 1000            # Frequency of printing to log
+
+    parsimonyStart true       # Starting with a parsimony tree
+
+    MCMCMC
+    numCoupledChains 4        # Number of MCMC coupled chains
+
+    CONVERGENCE
+    sdsfConvergence 0.01      # Consider runs converged (and stop) once the asdsf or msdsf is below this value (here 1%)
+    
+    BURNIN
+    burninProportion 0.25     # Burn-in rate (25%)
+end;
