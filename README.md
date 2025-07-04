@@ -148,7 +148,7 @@ phyluce_assembly_get_fastas_from_match_counts \
     --incomplete-matrix taxon_set1-taxa-incomplete.incomplete \
     --log-path log
 ```
-#### 4.2.1. Analyse the statistics for each taxon
+#### 4.2.1 Analyse the statistics for each taxon
 ☁️ If we want to analyze the statistics for each taxon, we need to separate the all-taxa-incomplete.fasta file into individual FASTA files for each taxon, each containing its respective captured UCEs.
 
 To do this, you must first split the `taxon_set1-taxa-incomplete.fasta` file by taxon using the following command:
@@ -174,7 +174,7 @@ Acteon_sp.unaligned.fasta,1395,756820,477.8030888030888,3.765000046699546,308,57
 Acteon_tornatilis.unaligned.fasta,1455,776310,605.4563888030888,4.657000046699546,208,420,402.0,12
 ```
 
-#### 4.2.2. Recovering duplicate UCE loci
+#### 4.2.2 Recovering duplicate UCE loci
 Recall that in step 4.1, all UCE loci identified as duplicates for a given taxon are discarded—this information is stored in the `duplicates.txt` file. This means that any UCE locus for which more than one contig was found is completely excluded from the dataset for that taxon, resulting in a loss of information.
 
 To recover part of this information, we process the `duplicates.txt` file to select, for each duplicated UCE locus, the best representative contig.
@@ -243,6 +243,41 @@ done
 
 ## 5. Alignment
 ### 5.1 Aligning UCE loci
+The recovered UCE loci were aligned using the MAFFT algorithm. For the alignment, we specified the options `--no-trim`, which disables the automatic trimming of unaligned regions and retains all positions in the alignments, and `--taxa`, where we must indicate the number of taxa in our dataset.
+
+```
+phyluce_align_seqcap_align \
+    --input final-taxon_set1-taxa-incomplete.fasta \
+    --output mafft-nexus-no-internal-trimmed \
+    --taxa 117 \
+    --aligner mafft \
+    --cores 24 \
+    --incomplete-matrix \
+    --output-format fasta \
+    --no-trim \
+    --log-path log
+```
+
+### 5.2 Gblocks
+To mask regions of sequences that are highly variable, ambiguous, or error-prone, Gblocks is used as a bioinformatics masking tool. Gblocks identifies and removes unreliable or poorly aligned sections in DNA, RNA, or protein sequences, retaining only the regions that are well and consistently aligned. Therefore, this tool improves the quality of multiple sequence alignments in phylogenetic studies.
+
+Phyluce includes a specific command to run Gblocks directly:
+```
+phyluce_align_get_gblocks_trimmed_alignments_from_untrimmed \
+        --alignments mafft-nexus-no-internal-trimmed  \
+        --output mafft-nexus-internal-no-trimmed-gblocks \
+        --b1 0.5 \
+        --b2 0.85 \
+        --b3 4 \
+        --b4 8 \
+        --cores 24 \
+        --log-path log
+```
+
+
+
+
+
 
 List of cited tools, publications, and external scripts used in the workflow. Be sure to include citations for:
 
