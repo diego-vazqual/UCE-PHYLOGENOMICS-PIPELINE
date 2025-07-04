@@ -402,15 +402,16 @@ phyluce_align_convert_one_align_to_another \
 --output-format fasta \
 --cores 24 \
 --log-path log
+
 ```
 Next, we will tag each file with the name of the corresponding UCE using the `add_tag.sh` script.
  ```
 bash add_tag.sh
 ```
 Once all the UCEs are labeled, we need to concatenate all the files into a single monolithic file, similar to the process done previously.
+```
 cd mafft-fastas-internal-trimmed-gblocks-clean
 cat * >>  all-fastas-clean
-```
  ```
 phyluce_assembly_explode_get_fastas_file \
 --input all-fastas-clean \
