@@ -160,6 +160,7 @@ phyluce_assembly_explode_get_fastas_file \
 ```
 Then, extract the statistics using the following command:
 ```
+echo "Sample ID,UCE loci,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > exploded_fastas.csv
 for i in exploded-fastas/*.fasta;
 do
     phyluce_assembly_get_fasta_lengths --input $i --csv exploded_fastas.csv;
@@ -225,7 +226,7 @@ And finally, we concatenate both files:
 cat taxon_set1-taxa-incomplete.fasta duplicates_DUPE1.fasta >> final-taxon_set1-taxa-incomplete.fasta
 ```
 
-☁️ To find out how many duplicates we have recovered per taxon, we can recalculate the statistics from step 4.2.1 and compare how many UCE loci have been recovered.
+☁️ To find out how many duplicates we have recovered per taxon, we can recalculate the statistics from step `4.2.1 ` and compare how many UCE loci have been recovered.
 
 To do this, we repeat the steps from section 4.2.1, but this time using the file `final-taxon_set1-taxa-incomplete.fasta`:
 ```
@@ -235,9 +236,10 @@ phyluce_assembly_explode_get_fastas_file \
     --by-taxon
 ```
 ```
+echo "Sample ID,UCE loci,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > exploded_fastas_final.csv
 for i in exploded-fastas-final-set1/*.fasta;
 do
-    phyluce_assembly_get_fasta_lengths --input $i --csv exploded_fastas.csv;
+    phyluce_assembly_get_fasta_lengths --input $i --csv exploded_fastas_final.csv;
 done
 ```
 
@@ -419,7 +421,7 @@ phyluce_assembly_explode_get_fastas_file \
 --output exploded-fastas-clean \
 ```
 ```
-echo "Sample ID,UCE ,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > fasta_lengths_clean.csv
+echo "Sample ID,UCE loci,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > fasta_lengths_clean.csv
 for i in exploded-fastas-clean/*.fasta; do  
     phyluce_assembly_get_fasta_lengths --input "$i" --csv >> fasta_lengths_clean.csv  
 done
@@ -476,7 +478,7 @@ phyluce_assembly_explode_get_fastas_file \
 --output exploded-fastas-50p \
 ```
  ```
-echo "Sample ID,UCE ,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > fasta_lengths_clean.csv
+echo "Sample ID,UCE loci,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > fasta_lengths_50p.csv
 for i in exploded-fastas-50p/*.fasta; do  
     phyluce_assembly_get_fasta_lengths --input "$i" --csv >> fasta_lengths_50p.csv  
 done
