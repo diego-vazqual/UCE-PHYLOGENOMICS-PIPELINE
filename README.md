@@ -561,22 +561,40 @@ java -jar /home/intern/Desktop/apps/ASTRAL/astral.5.7.8.jar -i astral_raxml_outp
 ```
 
 ## 7. References
+• Aberer, A. J., Kobert, K., & Stamatakis, A. (2014). ExaBayes: massively parallel Bayesian tree inference for the whole-genome era. Molecular Biology and Evolution, 31(10), 2553–2556. https://doi.org/10.1093/molbev/msu236
 
-• Crotty, S.M., Minh, B.Q., Bean, N.G., Holland, B.R., Tuke, J., Jermiin, L.S., Haeseler, A.V., 2019. GHOST: Recovering historical signal from heterotachously-evolved sequence alignments. Syst. Biol. 69, 249–264. https://doi.org/10.1093/sysbio/syz051
+• Bankevich, A., Nurk, S., Antipov, D., Gurevich, A. A., Dvorkin, M., Kulikov, A. S., Lesin, V. M., Nikolenko, S. I., Pham, S., Prjibelski, A. D., Pyshkin, A. V., Sirotkin, A. V., Vyahhi, N., Tesler, G., Alekseyev, M. A., & Pevzner, P. A. (2012). SPAdes: A new genome assembly algorithm and its applications to single-cell sequencing. Journal of Computational Biology, 19(5), 455–477. https://doi.org/10.1089/cmb.2012.0021
 
-• Wang, H.C., Minh, B.Q., Susko, S., Roger, A.J., 2018. Modeling site heterogeneity with posterior mean site frequency profiles accelerates accurate phylogenomic estimation. Syst. Biol., 67:216-235. https://doi.org/10.1093/sysbio/syx068
+• Castresana, J. (2000). Selection of conserved blocks from multiple alignments for their use in phylogenetic analysis. Molecular Biology and Evolution, 17(4), 540–552. https://academic.oup.com/mbe/article/17/4/540/1127654
 
-• Kalyaanamoorthy, S., Minh, B.Q., Wong, T.K.F., Haeseler, A.V., Jermiin, L.S., 2017. ModelFinder: Fast Model Selection for Accurate Phyloge- netic Estimates, Nature Methods, 14:587–589. https://doi.org/10.1038/nmeth.4285
+• Chen, S., Zhou, Y., Chen, Y., & Gu, J. (2018). fastp: an ultra-fast all-in-one FASTQ preprocessor. Bioinformatics, 34(17), i884-i890. https://doi.org/10.1093/bioinformatics/bty560
 
-• Faircloth, B.C., 2016. PHYLUCE is a software package for the analysis of conserved genomic loci. Bioinformatics 32, 786–788. https://doi.org/10.1093/bioinformatics/btv646.
+• Crotty, S. M., Minh, B. Q., Bean, N. G., Holland, B. R., Tuke, J., Jermiin, L. S., & Haeseler, A. V. (2020). GHOST: recovering historical signal from heterotachously evolved sequence alignments. Systematic Biology, 69(2), 249–264. https://doi.org/10.1093/sysbio/syz051
 
-• Andre J. Aberer, Kassian Kobert, Alexandros Stamatakis, ExaBayes: Massively Parallel Bayesian Tree Inference for the Whole-Genome Era, Molecular Biology and Evolution, Volume 31, Issue 10, October 2014, Pages 2553–2556, https://doi.org/10.1093/molbev/msu236
+• Cunha, T. J., & Giribet, G. (2019). A congruent topology for deep gastropod relationships. Proceedings of the Royal Society B: Biological Sciences, 286(1898), 20182776. https://doi.org/10.1098/rspb.2018.2776
 
-• Lam-Tung Nguyen, Heiko A. Schmidt, Arndt von Haeseler, Bui Quang Minh, IQ-TREE: A Fast and Effective Stochastic Algorithm for Estimating Maximum-Likelihood Phylogenies, Molecular Biology and Evolution, Volume 32, Issue 1, January 2015, Pages 268–274, https://doi.org/10.1093/molbev/msu300
+• Faircloth, B. C. (2016). PHYLUCE is a software package for the analysis of conserved genomic loci. Bioinformatics, 32(5), 786–788. https://doi.org/10.1093/bioinformatics/btv646
 
-• Fu, L., Niu, B., Zhu, Z., Wu, S., & Li, W. (2012). CD-HIT: accelerated for clustering the next-generation sequencing data. Bioinformatics (Oxford, England), 28(23), 3150–3152. https://doi.org/10.1093/bioinformatics/bts565
+• Fedosov, A. E., Zaharias, P., Lemarcis, T., Modica, M. V., Holford, M., Oliverio, M., Kantor, Y. I. & Pullandre, N. (2024). Phylogenomics of Neogastropoda: the backbone hidden in the bush. Systematic Biology, 73(3), 521–531. https://doi.org/10.1093/sysbio/syae010
 
-• For this work we have used the fastqCombinePairedEnd.py (https://github.com/enormandeau/Scripts) script created by Dr. Enric Normandeau, and the seqs2occupancy.py (https://github.com/tauanajc/phylo_scripts/blob/master/seqs2occupancy.py) script created by Dr. Tauana Cunha and Dr. Bruno Medeiros.
+• Fu, L., Niu, B., Zhu, Z., Wu, S., & Li, W. (2012). CD-HIT: Accelerated for clustering the next-generation sequencing data. Bioinformatics, 28(23), 3150–3152. https://doi.org/10.1093/bioinformatics/bts565
 
-• We have also used the scripts and commands available in the PHYLUCE tutorial (https://phyluce.readthedocs.io/en/latest/tutorials/tutorial-1.html), and the script zorro.py created by Dr. Tauana Cunha that has been modified for the present study.
+• Hoang, D. T., Chernomor, O., Von Haeseler, A., Minh, B. Q., & Vinh, L. S. (2018). UFBoot2: improving the ultrafast bootstrap approximation. Molecular Biology and Evolution, 35(2), 518–522. https://doi.org/10.1093/molbev/msx281
+
+• Katoh, K., & Standley, D. M. (2013). MAFFT Multiple Sequence Alignment software version 7: Improvements in performance and usability. Molecular Biology and Evolution, 30(4), 772–780. https://doi.org/10.1093/molbev/mst010
+
+• Minh, B. Q., Schmidt, H. A., Chernomor, O., Schrempf, D., Woodhams, M. D., Von Haeseler, A., & Lanfear, R. (2020). IQ-TREE 2: new models and efficient methods for phylogenetic inference in the genomic era. Molecular Biology and Evolution, 37(5), 1530–1534. https://doi.org/10.1093/molbev/msaa015
+
+• Mirarab, S., Reaz, R., Bayzid, M. S., Zimmermann, T., Swenson, M. S., & Warnow, T. (2014). ASTRAL: genome-scale coalescent-based species tree estimation. Bioinformatics, 30(17), i541–i548. https://doi.org/10.1093/bioinformatics/btu462
+
+• Sayyari, E., & Mirarab, S. (2016). Fast coalescent-based computation of local branch support from quartet frequencies. Molecular Biology and Evolution, 33(7), 1654–1668. https://doi.org/10.1093/molbev/msw079
+
+• Stamatakis, A. (2006). RAxML-VI-HPC: maximum likelihood-based phylogenetic analyses with thousands of taxa and mixed models. Bioinformatics, 22(21), 2688–2690. https://doi.org/10.1093/bioinformatics/btl446
+
+• Stamatakis, A. (2014). RAxML version 8: a tool for phylogenetic analysis and post-analysis of large phylogenies. Bioinformatics, 30(9), 1312-–1313. https://doi.org/10.1093/bioinformatics/btu033
+
+
+• For this work we have used the seqs2occupancy.py (https://github.com/tauanajc/phylo_scripts/blob/master/seqs2occupancy.py) script created by Dr. Tauana Cunha and Dr. Bruno Medeiros.
+
+• We have also used the scripts and commands available in the PHYLUCE tutorial (https://phyluce.readthedocs.io/en/latest/tutorials/tutorial-1.html).
 
