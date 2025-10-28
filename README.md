@@ -426,6 +426,7 @@ cat * >>  all-fastas-clean
 phyluce_assembly_explode_get_fastas_file \
 --input all-fastas-clean \
 --output exploded-fastas-clean \
+--by-taxon
 ```
 ```
 echo "Sample ID,UCE loci,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > fasta_lengths_clean.csv
@@ -483,6 +484,7 @@ cat * >>  all-fastas-50p
 phyluce_assembly_explode_get_fastas_file \
 --input all-fastas-50p \
 --output exploded-fastas-50p \
+--by-taxon
 ```
  ```
 echo "Sample ID,UCE loci,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > fasta_lengths_50p.csv
