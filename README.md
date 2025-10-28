@@ -104,7 +104,7 @@ phyluce_assembly_match_contigs_to_probes \
     --contigs data/spades_assemblies \
     --probes Probeset-70nt.fasta \
     --output uce-search-results \
-    --keep-duplicates duplicates.txt
+    --keep-duplicates duplicates.txt \
     --csv uce_serach_results.csv
 ```
 
