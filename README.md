@@ -170,7 +170,7 @@ Then, extract the statistics using the following command:
 echo "Sample ID,UCE loci,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > exploded_fastas.csv
 for i in exploded-fastas/*.fasta;
 do
-    phyluce_assembly_get_fasta_lengths --input $i --csv exploded_fastas.csv;
+    phyluce_assembly_get_fasta_lengths --input $i --csv >> exploded_fastas.csv
 done
 ```
 The results will be printed to the terminal and saved to a csv file, `exploded_fastas.csv` in this example.
