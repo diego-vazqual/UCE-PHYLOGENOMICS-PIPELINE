@@ -246,7 +246,7 @@ phyluce_assembly_explode_get_fastas_file \
 echo "Sample ID,UCE loci,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > exploded_fastas_final.csv
 for i in exploded-fastas-final-set1/*.fasta;
 do
-    phyluce_assembly_get_fasta_lengths --input $i --csv exploded_fastas_final.csv;
+    phyluce_assembly_get_fasta_lengths --input $i --csv >> exploded_fastas_final.csv
 done
 ```
 
