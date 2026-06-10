@@ -1,12 +1,6 @@
 #!/bin/bash
-
-
-# Script created by Oriol Borrajo on 20 November 2023
-# https://github.com/uriborrajo/HETGEN1000/
-
-
 # ./fastp.sh {input PATH} {output PATH}
-# e.g. ./fastp.sh ~/Desktop/Oriol/fastq ~/Desktop/Oriol/clean-fastq
+# e.g. ./fastp.sh ~/Desktop/Diego/fastq ~/Desktop/Diego/clean-fastq
 conda activate phyluce-1.7.2
 mkdir -p $2
 
