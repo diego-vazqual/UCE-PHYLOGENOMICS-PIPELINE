@@ -316,12 +316,12 @@ To identify and remove abnormally long terminal branches, we first build gene tr
 Acteon_sp    Taxa1
 Acteon_tornatilis    Taxa2
 Akera_bullata    Taxa3
-Ammonicera_sp    Taxa 4
+Ammonicera_sp    Taxa4
 ```
 In this file `taxa_map.txt`, the first column contains the original taxon names (as they appear in the alignments), and the second column, separated by a tab, contains the new shortened names. In this example, we use generic identifiers like Taxa1, Taxa2, etc.
 
 The script `alignment_phylip_format.py` renames taxon names and converts alignments from nexus format to phylip format. 
-This script takes as input the folder containing the alignments in nexus format (`mafft-phylip-nexus-internal-no-trimmed-gblocks-clean`) and the mapping file with the original and new taxon names (`taxa_map.txt`). The output is saved in a directory called `taxa_map.txt`.
+This script takes as input the folder containing the alignments in nexus format (`mafft-phylip-nexus-internal-no-trimmed-gblocks-clean`) and the mapping file with the original and new taxon names (`taxa_map.txt`). The output is saved in a directory called `mafft-phylip-nexus-internal-no-trimmed-gblocks-clean`.
 
 An example of running the script would be:
 ```
