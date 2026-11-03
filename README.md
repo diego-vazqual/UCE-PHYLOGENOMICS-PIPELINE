@@ -11,9 +11,9 @@
    - [5.1 Aligning UCE loci](#51-aligning-uce-loci)  
    - [5.2 Gblocks](#52-gblocks)  
    - [5.3 Alignment cleaning](#53-alignment-cleaning)  
-   - [5.4 Remove long terminal branches](#54-remove-long-terminal-branches)  
-   - [5.5 Preparing data for phylogenomic analysis](#55-preparing-data-for-phylogenomic-analysis)  
-   - [5.6 Final data matrices](#56-final-data-matrices)  
+   - [5.5 Remove long terminal branches](#54-remove-long-terminal-branches)  
+   - [5.6 Preparing data for phylogenomic analysis](#55-preparing-data-for-phylogenomic-analysis)  
+   - [5.7 Final data matrices](#56-final-data-matrices)  
 6. [Phylogenomic Analysis](#6-phylogenomic-analysis)  
    - [6.1 IQ-TREE2](#61-iq-tree2)  
    - [6.2 ExaBayes](#62-exabayes)  
@@ -302,7 +302,24 @@ phyluce_align_remove_locus_name_from_files \
     --log-path log
 ```
 
-### 5.4 Remove long terminal branches
+### 5.4 Remove empty sequences
+After Gblocks, some alignments may contain sequences made only of gaps or missing data (`-`, `?`, `N`). This happens when a taxon only had sequence in the columns removed by Gblocks. These empty sequences cause two problems:
+
+• RAxML refuses to build a gene tree from an alignment that contains them (`ERROR: Sequence ... consists entirely of undetermined values`). As a result, those loci have no gene tree for the long-branch filter (section 5.5) or for ASTRAL (section 7.3), and pass the long-branch filter without being checked.
+
+• Phyluce counts them as present taxa when building the occupancy matrices (section 5.7), so the occupancy of those loci is overestimated.
+
+To remove them, we use the script `remove_empty_sequences.py`, which takes as input the folder with the cleaned alignments in nexus format and writes the alignments without empty sequences, with the same file names, to a new folder:
+```
+python3 remove_empty_sequences.py \
+    mafft-nexus-internal-no-trimmed-gblocks-clean \
+    mafft-nexus-internal-no-trimmed-gblocks-clean-noempty
+```
+☁️ The script reports how many alignments contained empty sequences and how many sequences were removed, and saves the details (locus, number of taxa before and after, and removed taxa) in `empty_sequences_removed.tsv`.
+
+⚠️ Important: From this step on, use the folder `mafft-nexus-internal-no-trimmed-gblocks-clean-noempty` as input for the long-branch filter.
+
+### 5.5 Remove long terminal branches
 Even after the initial cleaning steps, alignments may still contain atypical sequences, which could represent chimeras, contaminants, or non-homologous alignments. These sequences can introduce artifacts in subsequent phylogenetic inference, particularly by generating abnormally long terminal branches, which may lead to the phenomenon known as long branch attraction (LBA). This occurs when highly divergent sequences are incorrectly grouped due to elevated substitution rates or high sequence dissimilarity.
 
 To mitigate this issue, we identified and removed abnormally long terminal branches using the following steps.
@@ -321,7 +338,7 @@ Ammonicera_sp    Taxa4
 In this file `taxa_map.txt`, the first column contains the original taxon names (as they appear in the alignments), and the second column, separated by a tab, contains the new shortened names. In this example, we use generic identifiers like Taxa1, Taxa2, etc.
 
 The script `alignment_phylip_format.py` renames taxon names and converts alignments from nexus format to phylip format. 
-This script takes as input the folder containing the alignments in nexus format (`mafft-phylip-nexus-internal-no-trimmed-gblocks-clean`) and the mapping file with the original and new taxon names (`taxa_map.txt`). The output is saved in a directory called `mafft-phylip-nexus-internal-no-trimmed-gblocks-clean`.
+This script takes as input the folder containing the alignments in nexus format (`mafft-nexus-internal-no-trimmed-gblocks-clean-noempty`) and the mapping file with the original and new taxon names (`taxa_map.txt`). The output is saved in a directory called `mafft-phylip-nexus-internal-no-trimmed-gblocks-clean`.
 
 An example of running the script would be:
 ```
@@ -389,7 +406,7 @@ Ammonicera    Ammonicera_sp
 ```
 In the `spms_info.txt` file, the first column contains the assigned taxonomic group, headed by `Bigtaxon`, and the second column, headed by `Taxon` and separated by a tab, includes the original names of the taxa or terminals. For the script to run correctly, this file must follow that structure.
 
-The script takes as input the individual gene trees from the `genes_tree/RAxML_bipartitions` directory and the alignments in nexus format (`mafft-nexus-internal-no-trimmed-gblocks-clean`). As output, it generates the filtered individual gene trees in the `clean_genes_trees` directory and **directly modifies the original alignments**.
+The script takes as input the individual gene trees from the `genes_tree/RAxML_bipartitions` directory and the alignments in nexus format (`mafft-nexus-internal-no-trimmed-gblocks-clean-noempty`). As output, it generates the filtered individual gene trees in the `clean_genes_trees` directory and **directly modifies the original alignments**.
 
 ⚠️ Important: If you wish to preserve the original alignments before filtering atypical sequences, make a copy, as the script directly overwrites the original files.
 
@@ -435,7 +452,7 @@ for i in exploded-fastas-clean/*.fasta; do
 done
 ```
 
-### 5.5 Final data matrices
+### 5.6 Final data matrices
 At this stage, we are interested in minimizing noise in the data and increasing confidence in phylogenetic inferences by removing loci or genes that may be less informative or more prone to error, as well as eliminating missing data. To achieve this, we generate occupancy matrices with different thresholds.
 
 ☁️ Using the Phyluce function `phyluce_align_get_align_summary_data`, we can first obtain information about the number of loci in matrices with varying levels of completeness, the total number of available loci, among other useful metrics.
@@ -492,7 +509,7 @@ for i in exploded-fastas-50p/*.fasta; do
     phyluce_assembly_get_fasta_lengths --input "$i" --csv >> fasta_lengths_50p.csv  
 done
 ```
-### 5.6 Preparing data for phylogenomic analysis
+### 5.7 Preparing data for phylogenomic analysis
 To ensure that IQ-TREE2, ExaBayes, and ASTRAL can recognize our files, we need to concatenate all our UCEs from the matrix into a single file in phylip format.
 
 To do this, run:
