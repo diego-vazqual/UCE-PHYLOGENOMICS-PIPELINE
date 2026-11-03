@@ -9,7 +9,7 @@ from Bio.Nexus import Nexus
 # USER CONFIGURATION
 # ===============================
 TREE_DIR = "genes_tree/RAxML_bipartitions"
-NEXUS_DIR = "mafft-nexus-internal-trimmed-gblocks-clean"
+NEXUS_DIR = "mafft-nexus-internal-no-trimmed-gblocks-clean-noempty"
 OUTPUT_TREES = "clean_genes_trees"
 OUTPUT_NEXUS = "clean-mafft-nexus-internal-trimmed-gblocks-clean"
 TAXON_FILE = "spms_info.txt"
