@@ -42,10 +42,10 @@ for r1 in */*_R1*.fastq.gz; do
     echo -e "$(dirname $r1)\t$(( $(zcat $r1 | wc -l) / 4 ))\t$(( $(zcat $r2 | wc -l) / 4 ))"
 done
 ```
-⚠️ Important: If R1 and R2 have a different number of readings, it will be necessary to match them before continuing.
+⚠️ Important: If R1 and R2 have a different number of reads, the files are probably truncated or corrupted. Download or copy them again before continuing.
 
 ### 2.2 FASTP
-Quality filtering (removal of low-quality bases and reads), adapter trimming, trimming of poly-G tails and base correction in overlapping read pairs are performed with fastp, using the script fastp.sh. The script takes as input a folder with one subfolder per sample, each containing its R1 and R2 files (*_R1*.fastq.gz, *_R2*.fastq.gz), and writes the cleaned reads (<sample>-READ1.fastq, <sample>-READ2.fastq) and the fastp quality reports (HTML and JSON) to one subfolder per sample in the output directory.
+Quality filtering (removal of low-quality bases and reads), adapter trimming, trimming of poly-G tails and base correction in overlapping read pairs are performed with fastp, using the script fastp.sh. The script takes as input a folder with one subfolder per sample, each containing its R1 and R2 files (`*_R1*.fastq.gz`, `*_R2*.fastq.gz`), and writes the cleaned reads (<sample>-READ1.fastq, <sample>-READ2.fastq) and the fastp quality reports (HTML and JSON) to one subfolder per sample in the output directory.
 
 Activate the environment where fastp is installed before running the script:
 ```
@@ -56,7 +56,7 @@ bash fastp.sh data/fastq data/clean_reads_fastq
 
 ### 2.3 CD-HIT-DUP
 
-Duplicate read pairs are removed with CD-HIT-DUP before assembling the contigs with SPAdes. The script cd-hit-dup.sh takes as input the output folder of fastp.sh and writes the deduplicated reads, compressed (<sample>-READ1.fastq.gz, <sample>-READ2.fastq.gz), to one subfolder per sample in the output directory. Two read pairs are considered duplicates when their first 30 bases are identical (-u 30).
+Duplicate read pairs are removed with CD-HIT-DUP before assembling the contigs with SPAdes. The script cd-hit-dup.sh takes as input the output folder of fastp.sh and writes the deduplicated reads, compressed (`<sample>-READ1.fastq`, `<sample>-READ2.fastq`), to one subfolder per sample in the output directory. Two read pairs are considered duplicates when their first 30 bases are identical (-u 30).
 ```
 bash cd-hit-dup.sh data/clean_reads_fastq data/clean_reads_cdhitdup
 ```
