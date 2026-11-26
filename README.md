@@ -45,7 +45,7 @@ done
 ⚠️ Important: If R1 and R2 have a different number of readings, it will be necessary to match them before continuing.
 
 ### 2.2 FASTP
-Quality filtering (removal of low-quality bases and reads), adapter trimming, trimming of poly-G tails (typical of NovaSeq/NextSeq data) and base correction in overlapping read pairs are performed with fastp, using the script fastp.sh. The script takes as input a folder with one subfolder per sample, each containing its R1 and R2 files (*_R1*.fastq.gz, *_R2*.fastq.gz), and writes the cleaned reads (<sample>-READ1.fastq, <sample>-READ2.fastq) and the fastp quality reports (HTML and JSON) to one subfolder per sample in the output directory.
+Quality filtering (removal of low-quality bases and reads), adapter trimming, trimming of poly-G tails and base correction in overlapping read pairs are performed with fastp, using the script fastp.sh. The script takes as input a folder with one subfolder per sample, each containing its R1 and R2 files (*_R1*.fastq.gz, *_R2*.fastq.gz), and writes the cleaned reads (<sample>-READ1.fastq, <sample>-READ2.fastq) and the fastp quality reports (HTML and JSON) to one subfolder per sample in the output directory.
 
 Activate the environment where fastp is installed before running the script:
 ```
