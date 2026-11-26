@@ -196,110 +196,58 @@ Acteon-tornatilis.unaligned.fasta,1455,776310,533.5,4.6,201,1189,548.0,9
 ```
 
 #### 4.2.2 Recovering duplicate UCE loci
-The loci removed as duplicates in section 4.1 are lost for the affected taxa. To recover part of them, the script `phyluce_assembly_parse_duplicates_file.py` (Faircloth lab) extracts from the assemblies the contigs of the loci listed under **probes hitting multiple contigs** in `duplicates.txt`. Contigs hitting multiple probes are not recovered.
+The loci removed as duplicates in section 4.1 are lost for the affected taxa. To recover part of them, we use the script `phyluce_assembly_parse_duplicates_file.py`, written by Brant C. Faircloth for PHYLUCE (Faircloth, 2016). The script extracts from the assemblies the contigs of the loci listed under **probes hitting multiple contigs** in `duplicates.txt`. Contigs hitting multiple probes are not recovered.
 
-For each locus and taxon, the script labels the duplicate contigs as `_DUPE1`, `_DUPE2`, etc., following their order in the assembly file. Because SPAdes writes the contigs sorted by decreasing length, `DUPE1` is the longest contig of each duplicated locus, and it is the one kept here.
-
-Run the script within the Phyluce environment:
+First, create a folder for the recovery of duplicates:
 ```
 mkdir -p duplicates
+```
+Move the list of duplicates generated in section 4.1 into this folder:
+```
 mv duplicates.txt duplicates/
+```
+Run the script `phyluce_assembly_parse_duplicates_file.py` within the Phyluce environment to extract the duplicate contigs in FASTA format:
+```
 python phyluce_assembly_parse_duplicates_file.py \
     --contigs data/spades_assemblies/contigs \
     --duplicates-file duplicates/duplicates.txt \
     --output duplicates/duplicates.fasta \
     --log-path log
 ```
+For each duplicated locus and taxon, the script labels the contigs as `_DUPE1`, `_DUPE2`, etc., following their order in the assembly file. Because SPAdes writes the contigs sorted by decreasing length, `DUPE1` is always the longest contig of each duplicated locus. We keep only this contig, as it is the most complete copy of the locus: it covers the UCE core region targeted by the probes and the largest part of the more variable flanking regions, which contain most of the phylogenetically informative sites.
+
 Keep only the `DUPE1` contigs and remove the `_DUPE1` label, so that the headers have the same format as the rest of the loci:
 ```
-awk '/^>/ {keep = ($1 ~ /_DUPE1$/)} keep' duplicates/duplicates.fasta \
-    | sed 's/_DUPE1//' > duplicates/duplicates_DUPE1.fasta
-grep -c '^>' duplicates/duplicates_DUPE1.fasta      # number of recovered loci (all taxa)
+awk '/^>/ {keep = ($1 ~ /_DUPE1$/)} keep' duplicates/duplicates.fasta | sed 's/_DUPE1//' > duplicates/duplicates_DUPE1.fasta
 ```
-⚠️ Important: `duplicates.txt` includes all the samples searched in section 4.1. If `taxon-set.conf` does not include all of them, remove the sequences of the excluded taxa from `duplicates_DUPE1.fasta` before the next step.
+☁️ Count the number of recovered loci (all taxa):
+```
+grep -c '^>' duplicates/duplicates_DUPE1.fasta
+```
+⚠️ Important:
+- `duplicates.txt` includes all the samples searched in section 4.1. If `taxon-set.conf` does not include all of them, remove the sequences of the excluded taxa from `duplicates_DUPE1.fasta` before the next step.
+- A recovered locus may still be a paralog. Sequences that behave as paralogs usually produce abnormally long terminal branches in the gene trees, and are removed by the long-branch filter (section 5.5).
 
 Finally, add the recovered loci to the rest of the UCE loci:
 ```
 cat taxon_set1-taxa-incomplete.fasta duplicates/duplicates_DUPE1.fasta > final-taxon_set1-taxa-incomplete.fasta
 ```
 
-☁️ To check how many loci have been recovered per taxon, repeat the statistics of section 4.2.1 on the final file and compare them with `exploded_fastas.csv`:
+☁️ To check how many loci have been recovered per taxon, repeat the statistics of section 4.2.1 on the final file and compare them with `exploded_fastas.csv`. First, split the final file by taxon:
 ```
 phyluce_assembly_explode_get_fastas_file \
     --input final-taxon_set1-taxa-incomplete.fasta \
     --output exploded-fastas-final \
     --by-taxon
-
+```
+Create the header of the statistics file:
+```
 echo "Sample,UCE loci,total bp,mean length,95 CI length,min length,max length,median length,contigs >1kb" > exploded_fastas_final.csv
+```
+And calculate the statistics for each taxon:
+```
 for i in exploded-fastas-final/*.fasta; do
     phyluce_assembly_get_fasta_lengths --input "$i" --csv >> exploded_fastas_final.csv
-done
-```
-#### 4.2.2 Recovering duplicate UCE loci
-Recall that in step 4.1, all UCE loci identified as duplicates for a given taxon are discarded—this information is stored in the `duplicates.txt` file. This means that any UCE locus for which more than one contig was found is completely excluded from the dataset for that taxon, resulting in a loss of information.
-
-To recover part of this information, we process the `duplicates.txt` file to select, for each duplicated UCE locus, the best representative contig.
-
-First, we create a directory where we will carry out the recovery of the duplicates:
-```
-mkdir -p duplicates
-```
-Then, we move the list, which indicates which duplicates have been identified for each UCE locus and taxon into, this directory:
-```
-mv duplicates.txt duplicates/
-```
-Next, we run the Python script `phyluce_assembly_parse_duplicates_file.py` to recover these duplicates in FASTA format:
-```
-python ./phyluce_assembly_parse_duplicates_file.py --contigs data/spades_assemblies --duplicates-file duplicates/duplicates.txt --output duplicates/duplicates.fasta
-```
-And inside ` duplicates/`:
-```
-cd duplicates/
-```
-```
-phyluce_assembly_explode_get_fastas_file \
-    --input duplicates.fasta \
-    --output exploded-duplicates-fastas \
-    --by-taxon
-```
-
-To select the most representative contig, we rely on two criteria: the longest contig and the highest percentage identity relative to the corresponding locus in other taxa. By default, the script `phyluce_assembly_parse_duplicates_file.py` labels this contig as DUPE1. To recover these DUPE1 contigs, we run the following commands:
-```
-cd exploded-duplicates-fastas
-```
-```
-cat *-DUPE1.unaligned.fasta >> duplicates_DUPE1.fasta
-```
-```
-sed -i 's/_DUPE1//g' duplicates_DUPE1.fasta
-```
-
-Now, the selected contigs stored in the FASTA file `duplicates_DUPE1.fasta` are concatenated with the rest of the contigs from the FASTA file `taxon_set1-taxa-incomplete.fasta`.
-
-First, we make a copy of the `duplicates_DUPE1.fasta` file into the main working directory, in this case `work_directory/`:
-```
-cp duplicates_DUPE1.fasta ../../ 
-```
-And finally, we concatenate both files:
-
-```
-cat taxon_set1-taxa-incomplete.fasta duplicates_DUPE1.fasta >> final-taxon_set1-taxa-incomplete.fasta
-```
-
-☁️ To find out how many duplicates we have recovered per taxon, we can recalculate the statistics from step `4.2.1 ` and compare how many UCE loci have been recovered.
-
-To do this, we repeat the steps from section 4.2.1, but this time using the file `final-taxon_set1-taxa-incomplete.fasta`:
-```
-phyluce_assembly_explode_get_fastas_file \
-    --input final-taxon_set1-taxa-incomplete.fasta \
-    --output exploded-fastas-final-set1 \
-    --by-taxon
-```
-```
-echo "Sample ID,UCE loci,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > exploded_fastas_final.csv
-for i in exploded-fastas-final-set1/*.fasta;
-do
-    phyluce_assembly_get_fasta_lengths --input $i --csv >> exploded_fastas_final.csv
 done
 ```
 
