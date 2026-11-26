@@ -50,6 +50,8 @@ Quality filtering (removal of low-quality bases and reads), adapter trimming, tr
 Activate the environment where fastp is installed before running the script:
 ```
 conda activate phyluce-1.7.2
+```
+```
 bash fastp.sh data/fastq data/clean_reads_fastq
 ```
 ☁️ Check the HTML report of each sample to confirm that adapters have been removed and that read quality is acceptable after filtering.
@@ -85,6 +87,8 @@ Akera_bullata:/home/user/work_directory/data/clean_reads_cdhitdup/Akera_bullata
 Activate the environment where Phyluce is installed and run the assembly from the working directory (the folder containing `assembly.conf`):
 ```
 conda activate phyluce-1.7.2
+```
+```
 phyluce_assembly_assemblo_spades
 --conf assembly.conf
 --output data/spades_assemblies
