@@ -64,34 +64,44 @@ bash cd-hit-dup.sh data/clean_reads_fastq data/clean_reads_cdhitdup
 ## 3. Contig assembly
 
 ### 3.1 SPADES
-The SPAdes program integrated into Phyluce requires a configuration file (assembly.conf) with a [samples] header and a list of each sample name followed by the path to its cleaned sequences.
+Clean reads are assembled into contigs with SPAdes, as implemented in Phyluce. Phyluce requires a configuration file (`assembly.conf`) with a `[samples]` header followed by one line per sample with the sample name and the absolute path to the folder containing its clean reads, separated by a colon.
 
-From within the folder containing your cleaned sample directories:
+From within the folder containing one subfolder per sample with the clean reads (output of section 2.3), run:
 ```
 echo "[samples]" > ../assembly.conf
-for i in *; do echo "$i:/home/intern/Desktop/Diego/work_directory/data/clean_reads_cdhitdup/$i/"; done >> ../assembly.conf
+for i in *; do echo "$i:$(pwd)/$i"; done >> ../assembly.conf
 ```
-✏️ Example assembly.conf:
+✏️ Example `assembly.conf`:
 ```
 [samples]
-Acteon_sp:/home/intern/Desktop/Diego/work_directory/data/clean_reads_cdhitdup/Acteon_sp
-Acteon_tornatilis:/home/intern/Desktop/Diego/data/work_directory/clean_reads_cdhitdup/Acteon_tornatilis
-Akera_bullata:/home/intern/Desktop/Diego/work_directory/data/clean_reads_cdhitdup/Akera_bullata
-Ammonicera_sp:/home/intern/Desktop/Diego/work_directory/data/clean_reads_cdhitdup/Ammonicera_sp
+[samples]
+Acteon_sp:/home/user/work_directory/data/clean_reads_cdhitdup/Acteon_sp
+Acteon_tornatilis:/home/user/work_directory/data/clean_reads_cdhitdup/Acteon_tornatilis
+Akera_bullata:/home/user/work_directory/data/clean_reads_cdhitdup/Akera_bullata
 ```
-Run SPAdes assembly (from within the folder containing config file):
+⚠️ Important:
+- Phyluce looks for read files ending in `-READ1.fastq.gz` and `-READ2.fastq.gz`. The scripts in section 2 already name the files this way.
+- Sample names should not contain spaces or hyphens (`-`). These names are carried to the contigs, alignments and trees, and can cause errors in later steps.
 
-⚠️ Important: Before running `phyluce_assembly_assemblo_spades`, make sure you have activated the environment where Phyluce is installed:
+Activate the environment where Phyluce is installed and run the assembly from the working directory (the folder containing `assembly.conf`):
 ```
 conda activate phyluce-1.7.2
+phyluce_assembly_assemblo_spades
+--conf assembly.conf
+--output data/spades_assemblies
+--cores 24
 ```
+📌 Adjust `--cores` and `--memory` (in GB) to the available resources and the number of samples.
+
+The assembled contigs of each sample are written to `data/spades_assemblies/contigs/<sample>.contigs.fasta`. This `contigs/` folder is the input for the next step.
+
+☁️ To check the quality of the assemblies (number of contigs, total length, mean, median and maximum contig length per sample), run:
 ```
-phyluce_assembly_assemblo_spades \
-    --conf assembly.conf \
-    --output data/spades_assemblies \
-    --cores 30
+echo "Sample,contigs,total bp,mean length,95 CI length,min length,max length,median length,contigs >1kb" > assembly_stats.csv
+for i in data/spades_assemblies/contigs/*.fasta; do
+    phyluce_assembly_get_fasta_lengths --input "$i" --csv >> assembly_stats.csv
+done
 ```
-📌 CPU threads depending on dataset size. This example used 117 samples and 2225 captured UCEs.
 
 ## 4. Target enrichment
 
