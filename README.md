@@ -74,7 +74,6 @@ for i in *; do echo "$i:$(pwd)/$i"; done >> ../assembly.conf
 ✏️ Example `assembly.conf`:
 ```
 [samples]
-[samples]
 Acteon_sp:/home/user/work_directory/data/clean_reads_cdhitdup/Acteon_sp
 Acteon_tornatilis:/home/user/work_directory/data/clean_reads_cdhitdup/Acteon_tornatilis
 Akera_bullata:/home/user/work_directory/data/clean_reads_cdhitdup/Akera_bullata
