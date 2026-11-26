@@ -35,7 +35,7 @@
 ## 2. Clean reads
 
 ### 2.1 Counting the read data
-Before cleaning, check that the R1 and R2 files of each sample contain the same number of reads. The command below expects one folder per sample containing its R1 and R2 files, and prints the sample name followed by the number of reads in R1 and in R2. Each read in FASTQ format occupies 4 lines, so the number of lines is divided by 4.
+Before cleaning, check that the R1 and R2 files of each sample contain the same number of reads. The command below expects one folder per sample containing its R1 and R2 files, and prints the sample name followed by the number of reads in R1 and in R2.
 ```
 for r1 in */*_R1*.fastq.gz; do
     r2=${r1/_R1/_R2}
