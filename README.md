@@ -65,13 +65,16 @@ bash cd-hit-dup.sh data/clean_reads_fastq data/clean_reads_cdhitdup
 
 ## 3. Contig assembly
 
-### 3.1 SPADES
+### 3.1 SPAdes
 Clean reads are assembled into contigs with SPAdes, as implemented in Phyluce. Phyluce requires a configuration file (`assembly.conf`) with a `[samples]` header followed by one line per sample with the sample name and the absolute path to the folder containing its clean reads, separated by a colon.
 
-From within the folder containing one subfolder per sample with the clean reads (output of section 2.3), run:
+From the working directory, create the configuration file from the output folder of section 2.3:
 ```
-echo "[samples]" > ../assembly.conf
-for i in *; do echo "$i:$(pwd)/$i"; done >> ../assembly.conf
+echo "[samples]" > assembly.conf
+for i in data/clean_reads_cdhitdup/*/; do
+    s=$(basename "$i")
+    echo "$s:$(pwd)/data/clean_reads_cdhitdup/$s"
+done >> assembly.conf
 ```
 ✏️ Example `assembly.conf`:
 ```
@@ -89,12 +92,12 @@ Activate the environment where Phyluce is installed and run the assembly from th
 conda activate phyluce-1.7.2
 ```
 ```
-phyluce_assembly_assemblo_spades
---conf assembly.conf
---output data/spades_assemblies
---cores 24
+phyluce_assembly_assemblo_spades \
+    --conf assembly.conf \
+    --output data/spades_assemblies \
+    --cores 24
 ```
-📌 Adjust `--cores` and `--memory` (in GB) to the available resources and the number of samples.
+📌 Adjust `--cores` to the available resources and the number of samples.
 
 The assembled contigs of each sample are written to `data/spades_assemblies/contigs/<sample>.contigs.fasta`. This `contigs/` folder is the input for the next step.
 
@@ -109,49 +112,50 @@ done
 ## 4. Target enrichment
 
 ### 4.1 Finding UCE loci
-After assembling contigs from the clean reads, the next step is to identify which contigs correspond to UCE loci (Ultra Conserved Elements) and exclude non-target sequences.
+## 4. Target enrichment
 
-From this point forward, maintaining a clean and consistent folder structure becomes especially important to avoid errors and streamline the workflow.
+### 4.1 Finding UCE loci
+After assembling the contigs, the next step is to identify which contigs correspond to UCE loci and to exclude non-target sequences. To do this, the contigs of each sample are compared with the probe set used for target enrichment (in this example, `Probeset-70nt.fasta`).
 
-To identify UCE loci, the following command is used, which compares the contigs with a set of probes. In this example, the command is executed from within the `Diego/` directory, where the probe file `Probeset-70nt.fasta` is located:
+From this point on, all commands are run from the working directory, which contains the probe file and the `data/` folder. Keeping a clean and consistent folder structure is especially important from here on to avoid errors.
+
 ```
 phyluce_assembly_match_contigs_to_probes \
-    --contigs data/spades_assemblies \
+    --contigs data/spades_assemblies/contigs \
     --probes Probeset-70nt.fasta \
     --output uce-search-results \
     --keep-duplicates duplicates.txt \
     --csv uce_search_results.csv
 ```
 
-By default, the Phyluce function `phyluce_assembly_match_contigs_to_probes` filters out UCE loci and contigs identified as duplicates in the dataset. These are identified as duplicates when probes designed for different UCE loci retrieve the same contig, or when multiple contigs, supposedly representing different genomic regions, are matched with probes targeting a single UCE locus. 
+By default, `phyluce_assembly_match_contigs_to_probes` removes two types of duplicates from each sample:
+- **Probes hitting multiple contigs:** the probes of a single UCE locus match more than one contig.
+- **Contigs hitting multiple probes:** a single contig is matched by probes designed for different UCE loci.
 
-To recover these duplicates, the `--keep-duplicates` option is used. This option allows the recovery, in the output file `duplicates.txt`, of duplicates detected per taxon at each locus. In subsequent processing steps, we will recover part of these loci.
+Both cases may indicate paralogy, so the affected loci and contigs are discarded for that sample. The option `--keep-duplicates` saves the list of duplicates detected in each sample to `duplicates.txt`, which is used in section 4.2.2 to recover part of these loci.
 
-☁️ By default, the search results are displayed in the terminal. These results include the number of UCE loci captured within the total contigs for each taxon, as well as the UCE loci and contigs identified as duplicates that were removed. However, by using the --csv option, these results can be saved to a CSV file.
+☁️ The search results (number of contigs, number of UCE loci recovered and number of duplicates removed per sample) are printed to the terminal and, with the option `--csv`, also saved to `uce_search_results.csv`.
 
 ### 4.2 Extracting UCE loci
+Next, define the set of taxa to be included in the analysis in a configuration file (`taxon-set.conf`). The first line contains the name of the taxon set in square brackets (e.g. `[taxon_set1]`), followed by the names of the taxa, one per line.
 
-Once the UCE loci have been identified, the next step is to define the taxa to be included in the analysis. To do this, it is necessary to compile a list with the names of these taxa and create a configuration file indicating which UCE loci are present in each one.
-
-If you don't have a list of the taxa you want to use, but you do have a folder containing the corresponding files for those taxa (e.g., spades_assemblies), you can retrieve their names using the following command:
+⚠️ Important: The taxon names must exactly match the sample names used in the assembly. To include all assembled samples and avoid typing errors, create the file directly from the contigs folder:
 ```
-ls -1 [Name of the directory containing the files of the taxa you want to use]
+echo "[taxon_set1]" > taxon-set.conf
+ls data/spades_assemblies/contigs | sed 's/\.contigs\.fasta$//' >> taxon-set.conf
 ```
-⚠️ Important: Make sure that the taxon names in your list exactly match the names of the folders or files in the assembly directory. For this reason, if no list has been prepared in advance, it's useful to extract the names directly from the assembly folder to avoid mistakes or missing taxa. 
+To exclude some samples, delete their lines from the file (e.g. with `nano`).
 
-Based on the list of taxa we want to use, we will create a file using the `nano` editor, which we will name ` taxon-set.conf`.  On the first line of the file, you should write the name you want to assign to the taxon set, for example, `[taxon_set1]`. Then, paste the names of the taxa, one per line.
-
-✏️ Example taxon-set.conf:
+✏️ Example `taxon-set.conf`:
 ```
 [taxon_set1]
 Acteon_sp
 Acteon_tornatilis
 Akera_bullata
-Ammonicera_sp
 ```
-💡 If you later want to change the taxon set, you can edit this configuration file (` taxon-set.conf`) directly using the `nano` editor and add a new list with a different header, such as `[taxon_set2]`.
+💡 Several taxon sets can be defined in the same file, each under its own header (e.g. `[taxon_set2]`), and selected with the option `--taxon-group`.
 
-Having configured the taxon list, we can run the following command to generate the initial list of UCE loci enriched in each taxon:
+Then, generate the list of UCE loci recovered for each taxon of the set:
 ```
 phyluce_assembly_get_match_counts \
     --locus-db uce-search-results/probe.matches.sqlite \
@@ -160,43 +164,80 @@ phyluce_assembly_get_match_counts \
     --incomplete-matrix \
     --output taxon_set1-taxa-incomplete.conf
 ```
-The above command generates an output called `all-taxa-incomplete.conf`. We need this output in FASTA format for the next step. To do this, we run the following command:
+And extract the corresponding sequences in FASTA format:
 ```
 phyluce_assembly_get_fastas_from_match_counts \
-    --contigs data/spades_assemblies \
+    --contigs data/spades_assemblies/contigs \
     --locus-db uce-search-results/probe.matches.sqlite \
     --match-count-output taxon_set1-taxa-incomplete.conf \
     --output taxon_set1-taxa-incomplete.fasta \
     --incomplete-matrix taxon_set1-taxa-incomplete.incomplete \
     --log-path log
 ```
-#### 4.2.1 Analyse the statistics for each taxon
-☁️ If we want to analyze the statistics for each taxon, we need to separate the all-taxa-incomplete.fasta file into individual FASTA files for each taxon, each containing its respective captured UCEs.
+The option `--incomplete-matrix` keeps loci that are missing in some taxa. Loci are filtered by occupancy later, when building the final data matrices (section 5.7).
 
-To do this, you must first split the `taxon_set1-taxa-incomplete.fasta` file by taxon using the following command:
+#### 4.2.1 Statistics per taxon
+☁️ To obtain the number and length of the UCE loci recovered for each taxon, first split `taxon_set1-taxa-incomplete.fasta` into one FASTA file per taxon:
 ```
 phyluce_assembly_explode_get_fastas_file \
     --input taxon_set1-taxa-incomplete.fasta \
     --output exploded-fastas \
     --by-taxon
 ```
-Then, extract the statistics using the following command:
+And then calculate the statistics:
 ```
-echo "Sample ID,UCE loci,total bp,mean length,95 CI length,min length,max length, median legnth, contigs >1kb" > exploded_fastas.csv
-for i in exploded-fastas/*.fasta;
-do
-    phyluce_assembly_get_fasta_lengths --input $i --csv >> exploded_fastas.csv
+echo "Sample,UCE loci,total bp,mean length,95 CI length,min length,max length,median length,contigs >1kb" > exploded_fastas.csv
+for i in exploded-fastas/*.fasta; do
+    phyluce_assembly_get_fasta_lengths --input "$i" --csv >> exploded_fastas.csv
 done
 ```
-The results will be printed to the terminal and saved to a csv file, `exploded_fastas.csv` in this example.
-
-Example of statistics output:
+✏️ Example `exploded_fastas.csv`:
 ```
-## samples id,UCE loci,total bp,mean length,95 CI length,min length,max length,median legnth,contigs >1kb
-Acteon_sp.unaligned.fasta,1395,756820,477.8030888030888,3.765000046699546,308,577,520.0,12
-Acteon_tornatilis.unaligned.fasta,1455,776310,605.4563888030888,4.657000046699546,208,420,402.0,12
+Sample,UCE loci,total bp,mean length,95 CI length,min length,max length,median length,contigs >1kb
+Acteon-sp.unaligned.fasta,1395,756820,542.5,3.8,208,1245,560.0,12
+Acteon-tornatilis.unaligned.fasta,1455,776310,533.5,4.6,201,1189,548.0,9
 ```
 
+#### 4.2.2 Recovering duplicate UCE loci
+The loci removed as duplicates in section 4.1 are lost for the affected taxa. To recover part of them, the script `phyluce_assembly_parse_duplicates_file.py` (Faircloth lab) extracts from the assemblies the contigs of the loci listed under **probes hitting multiple contigs** in `duplicates.txt`. Contigs hitting multiple probes are not recovered.
+
+For each locus and taxon, the script labels the duplicate contigs as `_DUPE1`, `_DUPE2`, etc., following their order in the assembly file. Because SPAdes writes the contigs sorted by decreasing length, `DUPE1` is the longest contig of each duplicated locus, and it is the one kept here.
+
+Run the script within the Phyluce environment:
+```
+mkdir -p duplicates
+mv duplicates.txt duplicates/
+python phyluce_assembly_parse_duplicates_file.py \
+    --contigs data/spades_assemblies/contigs \
+    --duplicates-file duplicates/duplicates.txt \
+    --output duplicates/duplicates.fasta \
+    --log-path log
+```
+Keep only the `DUPE1` contigs and remove the `_DUPE1` label, so that the headers have the same format as the rest of the loci:
+```
+awk '/^>/ {keep = ($1 ~ /_DUPE1$/)} keep' duplicates/duplicates.fasta \
+    | sed 's/_DUPE1//' > duplicates/duplicates_DUPE1.fasta
+grep -c '^>' duplicates/duplicates_DUPE1.fasta      # number of recovered loci (all taxa)
+```
+⚠️ Important: `duplicates.txt` includes all the samples searched in section 4.1. If `taxon-set.conf` does not include all of them, remove the sequences of the excluded taxa from `duplicates_DUPE1.fasta` before the next step.
+
+Finally, add the recovered loci to the rest of the UCE loci:
+```
+cat taxon_set1-taxa-incomplete.fasta duplicates/duplicates_DUPE1.fasta > final-taxon_set1-taxa-incomplete.fasta
+```
+
+☁️ To check how many loci have been recovered per taxon, repeat the statistics of section 4.2.1 on the final file and compare them with `exploded_fastas.csv`:
+```
+phyluce_assembly_explode_get_fastas_file \
+    --input final-taxon_set1-taxa-incomplete.fasta \
+    --output exploded-fastas-final \
+    --by-taxon
+
+echo "Sample,UCE loci,total bp,mean length,95 CI length,min length,max length,median length,contigs >1kb" > exploded_fastas_final.csv
+for i in exploded-fastas-final/*.fasta; do
+    phyluce_assembly_get_fasta_lengths --input "$i" --csv >> exploded_fastas_final.csv
+done
+```
 #### 4.2.2 Recovering duplicate UCE loci
 Recall that in step 4.1, all UCE loci identified as duplicates for a given taxon are discarded—this information is stored in the `duplicates.txt` file. This means that any UCE locus for which more than one contig was found is completely excluded from the dataset for that taxon, resulting in a loss of information.
 
