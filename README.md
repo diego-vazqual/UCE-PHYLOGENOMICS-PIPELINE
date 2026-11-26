@@ -129,7 +129,7 @@ By default, `phyluce_assembly_match_contigs_to_probes` removes two types of dupl
 - **Probes hitting multiple contigs:** the probes of a single UCE locus match more than one contig.
 - **Contigs hitting multiple probes:** a single contig is matched by probes designed for different UCE loci.
 
-Both cases may indicate paralogy, so the affected loci and contigs are discarded for that sample. The option `--keep-duplicates` saves the list of duplicates detected in each sample to `duplicates.txt`, which is used in section 4.2.2 to recover part of these loci.
+Both cases suggest that the locus is problematic, either because of assembly errors or because of biological events such as gene duplication (potential paralogs), so the affected loci and contigs are discarded for that sample. The option `--keep-duplicates` saves the list of duplicates detected in each sample to `duplicates.txt`, which is used in section 4.2.2 to recover part of these loci.
 
 ☁️ The search results (number of contigs, number of UCE loci recovered and number of duplicates removed per sample) are printed to the terminal and, with the option `--csv`, also saved to `uce_search_results.csv`.
 
