@@ -112,9 +112,6 @@ done
 ## 4. Target enrichment
 
 ### 4.1 Finding UCE loci
-## 4. Target enrichment
-
-### 4.1 Finding UCE loci
 After assembling the contigs, the next step is to identify which contigs correspond to UCE loci and to exclude non-target sequences. To do this, the contigs of each sample are compared with the probe set used for target enrichment (in this example, `Probeset-70nt.fasta`).
 
 From this point on, all commands are run from the working directory, which contains the probe file and the `data/` folder. Keeping a clean and consistent folder structure is especially important from here on to avoid errors.
