@@ -1,40 +1,36 @@
 #!/bin/bash
+# Removal of duplicate read pairs with CD-HIT-DUP.
+# Usage: bash cd-hit-dup.sh <input_dir> <output_dir>
+#   <input_dir>  output of fastp.sh: one subfolder per sample with <sample>-READ1.fastq and <sample>-READ2.fastq
+#   <output_dir> one subfolder per sample with the deduplicated reads, compressed (.fastq.gz)
+# Requires cd-hit-dup in the PATH.
 
-# Usage: ./cd-hit-dup.sh $1 $2
-# $1 = clean-fastq
-# $2 = cdhitdup
-
-#### a. Specify input and output path
 input="$1"
 output="$2"
+
+if [ -z "$input" ] || [ -z "$output" ]; then
+    echo "Usage: bash cd-hit-dup.sh <input_dir> <output_dir>"; exit 1
+fi
 mkdir -p "$output"
 
-#### b. Loop
-for species_directory in "$input"/*; do
-  if [ -d "$species_directory" ]; then 
-    species=$(basename "$species_directory")
-    echo "PROCESSING: $species"
+for sample_dir in "$input"/*/; do
+    sample=$(basename "$sample_dir")
+    echo "PROCESSING: $sample"
 
-    read1=$(find "$species_directory" -type f -name "*-READ1.fastq") 
-    read2=$(find "$species_directory" -type f -name "*-READ2.fastq") 
+    read1="$sample_dir/${sample}-READ1.fastq"
+    read2="$sample_dir/${sample}-READ2.fastq"
 
-    if [ -n "$read1" ] && [ -n "$read2" ]; then
-      output_species="$output/$species_directory" 
-      mkdir -p "$output_species" #make dir if parents don't exist
-      cd-hit-dup -u 30 -m false -i "$read1" -i2 "$read2" -o "$output_directory/${species}-READ1.fastq" -o2 "$output_dir/${species}-READ2.fastq" \
-#### c. Compressing output
-      gzip -k "$output_species/${species}-READ1.fastq"
-      gzip -k "$output_species/${species}-READ2.fastq"
-
-      echo "Duplicates removed from $species"
+    if [ -f "$read1" ] && [ -f "$read2" ]; then
+        out="$output/$sample"
+        mkdir -p "$out"
+        # -u 30: compare only the first 30 bases of each read; -m false: do not require identical length
+        cd-hit-dup -u 30 -m false \
+                   -i "$read1" -i2 "$read2" \
+                   -o "$out/${sample}-READ1.fastq" -o2 "$out/${sample}-READ2.fastq"
+        gzip "$out/${sample}-READ1.fastq" "$out/${sample}-READ2.fastq"
+        rm -f "$out"/*.clstr                     # cluster reports, not needed downstream
+        echo "Duplicates removed from $sample"
     else
-      echo "[ERROR] no READ1 & READ2: $species"
+        echo "[ERROR] READ1 and/or READ2 not found for $sample"
     fi
-  fi
-done
-#### d. Delete unnecessary files
-for species_directory in "$output"/*; do
-  if [ -d "$species_directory" ]; then
-    find "$species_directory" -type f ! -name "*.gz" -exec rm -fr {} \;
-  fi
 done
