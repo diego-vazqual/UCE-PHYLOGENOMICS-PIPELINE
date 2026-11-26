@@ -52,6 +52,7 @@ Activate the environment where fastp is installed before running the script:
 conda activate phyluce-1.7.2
 bash fastp.sh data/fastq data/clean_reads_fastq
 ```
+☁️ Check the HTML report of each sample to confirm that adapters have been removed and that read quality is acceptable after filtering.
 
 ### 2.3 CD-HIT-DUP
 
