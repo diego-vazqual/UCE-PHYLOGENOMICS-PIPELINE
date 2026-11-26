@@ -133,12 +133,39 @@ Both cases suggest that the locus is problematic, either because of assembly err
 
 ☁️ The search results (number of contigs, number of UCE loci recovered and number of duplicates removed per sample) are printed to the terminal and, with the option `--csv`, also saved to `uce_search_results.csv`.
 
+## 4. Target enrichment
+
+### 4.1 Finding UCE loci
+After assembling the contigs, the next step is to identify which contigs correspond to UCE loci and to exclude non-target sequences. To do this, the contigs of each sample are compared with the probe set used for target enrichment (in this example, `Probeset-70nt.fasta`).
+
+From this point on, all commands are run from the working directory, which contains the probe file and the `data/` folder. Keeping a clean and consistent folder structure is especially important from here on to avoid errors.
+
+```
+phyluce_assembly_match_contigs_to_probes \
+    --contigs data/spades_assemblies/contigs \
+    --probes Probeset-70nt.fasta \
+    --output uce-search-results \
+    --keep-duplicates duplicates.txt \
+    --csv uce_search_results.csv
+```
+
+By default, `phyluce_assembly_match_contigs_to_probes` removes two types of duplicates from each sample:
+- **Probes hitting multiple contigs:** the probes of a single UCE locus match more than one contig.
+- **Contigs hitting multiple probes:** a single contig is matched by probes designed for different UCE loci.
+
+Both cases suggest that the locus is problematic, either because of assembly errors or because of biological events such as gene duplication (potential paralogs), so the affected loci and contigs are discarded for that sample. The option `--keep-duplicates` saves the list of duplicates detected in each sample to `duplicates.txt`, which is used in section 4.2.2 to recover part of these loci.
+
+☁️ The search results (number of contigs, number of UCE loci recovered and number of duplicates removed per sample) are printed to the terminal and, with the option `--csv`, also saved to `uce_search_results.csv`.
+
 ### 4.2 Extracting UCE loci
 Next, define the set of taxa to be included in the analysis in a configuration file (`taxon-set.conf`). The first line contains the name of the taxon set in square brackets (e.g. `[taxon_set1]`), followed by the names of the taxa, one per line.
 
-⚠️ Important: The taxon names must exactly match the sample names used in the assembly. To include all assembled samples and avoid typing errors, create the file directly from the contigs folder:
+⚠️ Important: The taxon names must exactly match the sample names used in the assembly. To include all assembled samples and avoid typing errors, create the file directly from the contigs folder. First, write the name of the taxon set:
 ```
 echo "[taxon_set1]" > taxon-set.conf
+```
+Then, add the names of all assembled samples:
+```
 ls data/spades_assemblies/contigs | sed 's/\.contigs\.fasta$//' >> taxon-set.conf
 ```
 To exclude some samples, delete their lines from the file (e.g. with `nano`).
@@ -181,9 +208,12 @@ phyluce_assembly_explode_get_fastas_file \
     --output exploded-fastas \
     --by-taxon
 ```
-And then calculate the statistics:
+Create the header of the statistics file:
 ```
 echo "Sample,UCE loci,total bp,mean length,95 CI length,min length,max length,median length,contigs >1kb" > exploded_fastas.csv
+```
+And calculate the statistics for each taxon:
+```
 for i in exploded-fastas/*.fasta; do
     phyluce_assembly_get_fasta_lengths --input "$i" --csv >> exploded_fastas.csv
 done
@@ -208,7 +238,7 @@ mv duplicates.txt duplicates/
 ```
 Run the script `phyluce_assembly_parse_duplicates_file.py` within the Phyluce environment to extract the duplicate contigs in FASTA format:
 ```
-python phyluce_assembly_parse_duplicates_file.py \
+python3 phyluce_assembly_parse_duplicates_file.py \
     --contigs data/spades_assemblies/contigs \
     --duplicates-file duplicates/duplicates.txt \
     --output duplicates/duplicates.fasta \
@@ -250,7 +280,6 @@ for i in exploded-fastas-final/*.fasta; do
     phyluce_assembly_get_fasta_lengths --input "$i" --csv >> exploded_fastas_final.csv
 done
 ```
-
 ## 5. Alignment
 ### 5.1 Aligning UCE loci
 The recovered UCE loci were aligned using the MAFFT algorithm. For the alignment, we specified the options `--no-trim`, which disables the automatic trimming of unaligned regions and retains all positions in the alignments, and `--taxa`, where we must indicate the number of taxa in our dataset.
