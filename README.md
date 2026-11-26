@@ -35,20 +35,22 @@
 ## 2. Clean reads
 
 ### 2.1 Counting the read data
-This command counts the number of reads in files R1 or R2 (in the example R1). It is useful to verify that R1 and R2 have the same number of reads.
-The command divides the total number of lines by 4, since each read in FASTQ format occupies 4 lines.
-
+Before cleaning, check that the R1 and R2 files of each sample contain the same number of reads. The command below expects one folder per sample containing its R1 and R2 files, and prints the sample name followed by the number of reads in R1 and in R2. Each read in FASTQ format occupies 4 lines, so the number of lines is divided by 4.
 ```
-for i in *_R1_*.fastq.gz; do echo $i; gunzip -c $i | wc -l | awk '{print $1/4}'; done
+for r1 in */*_R1*.fastq.gz; do
+    r2=${r1/_R1/_R2}
+    echo -e "$(dirname $r1)\t$(( $(zcat $r1 | wc -l) / 4 ))\t$(( $(zcat $r2 | wc -l) / 4 ))"
+done
 ```
 ⚠️ Important: If R1 and R2 have a different number of readings, it will be necessary to match them before continuing.
 
 ### 2.2 FASTP
-To perform quality filtering (removal of low-quality bases) and cleaning of the FASTQ files (removal of adapter sequences and duplicate reads), we use a script called `fastp.sh`. This script takes as input a folder containing the raw FASTQ files and generates cleaned sequences in an output directory (e.g., clean-fastq).
+Quality filtering (removal of low-quality bases and reads), adapter trimming, trimming of poly-G tails (typical of NovaSeq/NextSeq data) and base correction in overlapping read pairs are performed with fastp, using the script fastp.sh. The script takes as input a folder with one subfolder per sample, each containing its R1 and R2 files (*_R1*.fastq.gz, *_R2*.fastq.gz), and writes the cleaned reads (<sample>-READ1.fastq, <sample>-READ2.fastq) and the fastp quality reports (HTML and JSON) to one subfolder per sample in the output directory.
 
-An example of running the script would be:
+Activate the environment where fastp is installed before running the script:
 ```
-bash fastp.sh [input path:~/Desktop/Diego/work_directory/data/fastq] [output path:~/Desktop/Diego/work_directory/data/clean_reads_fastq]
+conda activate phyluce-1.7.2
+bash fastp.sh data/fastq data/clean_reads_fastq
 ```
 
 ### 2.3 CD-HIT-DUP
