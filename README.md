@@ -208,7 +208,7 @@ Acteon-tornatilis.unaligned.fasta,1455,776310,533.5,4.6,201,1189,548.0,9
 ```
 
 #### 4.2.2 Recovering duplicate UCE loci
-The loci removed as duplicates in section 4.1 are lost for the affected taxa. To recover part of them, we use the script `phyluce_assembly_parse_duplicates_file.py`, written by Brant C. Faircloth for PHYLUCE (Faircloth, 2016). The script extracts from the assemblies the contigs of the loci listed under **probes hitting multiple contigs** in `duplicates.txt`. Contigs hitting multiple probes are not recovered.
+The loci removed as duplicates in section 4.1 are lost for the affected taxa. To recover part of them, we use the script `phyluce_assembly_parse_duplicates_file.py`(Faircloth, 2016). The script extracts from the assemblies the contigs of the loci listed under **probes hitting multiple contigs** in `duplicates.txt`. Contigs hitting multiple probes are not recovered.
 
 First, create a folder for the recovery of duplicates:
 ```
@@ -238,7 +238,7 @@ grep -c '^>' duplicates/duplicates_DUPE1.fasta
 ```
 ⚠️ Important:
 - `duplicates.txt` includes all the samples searched in section 4.1. If `taxon-set.conf` does not include all of them, remove the sequences of the excluded taxa from `duplicates_DUPE1.fasta` before the next step.
-- A recovered locus may still be a paralog. Sequences that behave as paralogs usually produce abnormally long terminal branches in the gene trees, and are removed by the long-branch filter (section 5.5).
+- A recovered locus may still be a paralog. Paralogous sequences can produce abnormally long terminal branches in the gene trees (Mai & Mirarab, 2018), so some of them are removed by the long-branch filter (section 5.5). However, this filter does not detect all paralogs (e.g. those from recent duplications).
 
 Finally, add the recovered loci to the rest of the UCE loci:
 ```
@@ -613,6 +613,8 @@ java -jar /home/intern/Desktop/apps/ASTRAL/astral.5.7.8.jar -i astral_raxml_outp
 • Hoang, D. T., Chernomor, O., Von Haeseler, A., Minh, B. Q., & Vinh, L. S. (2018). UFBoot2: improving the ultrafast bootstrap approximation. Molecular Biology and Evolution, 35(2), 518–522. https://doi.org/10.1093/molbev/msx281
 
 • Katoh, K., & Standley, D. M. (2013). MAFFT Multiple Sequence Alignment software version 7: Improvements in performance and usability. Molecular Biology and Evolution, 30(4), 772–780. https://doi.org/10.1093/molbev/mst010
+
+• Mai, U., & Mirarab, S. (2018). TreeShrink: fast and accurate detection of outlier long branches in collections of phylogenetic trees. BMC Genomics, 19(Suppl 5), 272. https://doi.org/10.1186/s12864-018-4620-2
 
 • Minh, B. Q., Schmidt, H. A., Chernomor, O., Schrempf, D., Woodhams, M. D., Von Haeseler, A., & Lanfear, R. (2020). IQ-TREE 2: new models and efficient methods for phylogenetic inference in the genomic era. Molecular Biology and Evolution, 37(5), 1530–1534. https://doi.org/10.1093/molbev/msaa015
 
