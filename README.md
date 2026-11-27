@@ -69,7 +69,6 @@ bash cd-hit-dup.sh data/clean_reads_fastq data/clean_reads_cdhitdup
 Clean reads are assembled into contigs with SPAdes, as implemented in Phyluce. Phyluce requires a configuration file (`assembly.conf`) with a `[samples]` header followed by one line per sample with the sample name and the absolute path to the folder containing its clean reads, separated by a colon.
 
 From the working directory, create the configuration file from the output folder of section 2.3. First, write the header:
-```:
 ```
 echo "[samples]" > assembly.conf
 ```
