@@ -226,7 +226,7 @@ python3 phyluce_assembly_parse_duplicates_file.py \
     --output duplicates/duplicates.fasta \
     --log-path log
 ```
-For each duplicated locus and taxon, the script labels the contigs as `_DUPE1`, `_DUPE2`, etc., following their order in the assembly file. Because SPAdes writes the contigs sorted by decreasing length, `DUPE1` is always the longest contig of each duplicated locus. We keep only this contig, as it is the most complete copy of the locus: it covers the UCE core region targeted by the probes and the largest part of the more variable flanking regions, which contain most of the phylogenetically informative sites.
+For each duplicated locus and taxon, the script labels the contigs as `_DUPE1`, `_DUPE2`, etc., following their order in the assembly file. Because SPAdes writes the contigs sorted by decreasing length, `DUPE1` is always the longest contig of each duplicated locus. We keep only this contig, as it is the most complete copy of the locus.
 
 Keep only the `DUPE1` contigs and remove the `_DUPE1` label, so that the headers have the same format as the rest of the loci:
 ```
