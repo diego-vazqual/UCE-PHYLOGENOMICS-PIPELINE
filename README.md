@@ -45,7 +45,7 @@ done
 ⚠️ Important: If R1 and R2 have a different number of reads, the files are probably truncated or corrupted. Download or copy them again before continuing.
 
 ### 2.2 FASTP
-Quality filtering (removal of low-quality bases and reads), adapter trimming, trimming of poly-G tails and base correction in overlapping read pairs are performed with fastp, using the script fastp.sh. The script takes as input a folder with one subfolder per sample, each containing its R1 and R2 files (`*_R1*.fastq.gz`, `*_R2*.fastq.gz`), and writes the cleaned reads (<sample>-READ1.fastq, <sample>-READ2.fastq) and the fastp quality reports (HTML and JSON) to one subfolder per sample in the output directory.
+Quality filtering (removal of low-quality bases and reads), adapter trimming, trimming of poly-G tails and base correction in overlapping read pairs are performed with fastp, using the script `fastp.sh`. The script takes as input a folder with one subfolder per sample, each containing its R1 and R2 files (`*_R1*.fastq.gz`, `*_R2*.fastq.gz`), and writes the cleaned reads (`<sample>-READ1.fastq`, `<sample>-READ2.fastq`) and the fastp quality reports (HTML and JSON) to one subfolder per sample in the output directory.
 
 Activate the environment where fastp is installed before running the script:
 ```
@@ -68,9 +68,13 @@ bash cd-hit-dup.sh data/clean_reads_fastq data/clean_reads_cdhitdup
 ### 3.1 SPAdes
 Clean reads are assembled into contigs with SPAdes, as implemented in Phyluce. Phyluce requires a configuration file (`assembly.conf`) with a `[samples]` header followed by one line per sample with the sample name and the absolute path to the folder containing its clean reads, separated by a colon.
 
-From the working directory, create the configuration file from the output folder of section 2.3:
+From the working directory, create the configuration file from the output folder of section 2.3. First, write the header:
+```:
 ```
 echo "[samples]" > assembly.conf
+```
+Then, add one line per sample with its name and the path to its clean reads:
+```
 for i in data/clean_reads_cdhitdup/*/; do
     s=$(basename "$i")
     echo "$s:$(pwd)/data/clean_reads_cdhitdup/$s"
@@ -99,12 +103,15 @@ phyluce_assembly_assemblo_spades \
 ```
 📌 Adjust `--cores` to the available resources and the number of samples.
 
-The assembled contigs of each sample are written to `data/spades_assemblies/contigs/<sample>.contigs.fasta`. This `contigs/` folder is the input for the next step.
+The assembled contigs of each sample are written to `data/spades_assemblies/<sample>.contigs.fasta`. This `contigs/` folder is the input for the next step.
 
-☁️ To check the quality of the assemblies (number of contigs, total length, mean, median and maximum contig length per sample), run:
+☁️ To check the quality of the assemblies (number of contigs, total length, mean, median and maximum contig length per sample), first create the header of the statistics file:
 ```
 echo "Sample,contigs,total bp,mean length,95 CI length,min length,max length,median length,contigs >1kb" > assembly_stats.csv
-for i in data/spades_assemblies/contigs/*.fasta; do
+```
+And calculate the statistics for each sample:
+```
+for i in data/spades_assemblies/*.contigs.fasta; do
     phyluce_assembly_get_fasta_lengths --input "$i" --csv >> assembly_stats.csv
 done
 ```
@@ -118,31 +125,7 @@ From this point on, all commands are run from the working directory, which conta
 
 ```
 phyluce_assembly_match_contigs_to_probes \
-    --contigs data/spades_assemblies/contigs \
-    --probes Probeset-70nt.fasta \
-    --output uce-search-results \
-    --keep-duplicates duplicates.txt \
-    --csv uce_search_results.csv
-```
-
-By default, `phyluce_assembly_match_contigs_to_probes` removes two types of duplicates from each sample:
-- **Probes hitting multiple contigs:** the probes of a single UCE locus match more than one contig.
-- **Contigs hitting multiple probes:** a single contig is matched by probes designed for different UCE loci.
-
-Both cases suggest that the locus is problematic, either because of assembly errors or because of biological events such as gene duplication (potential paralogs), so the affected loci and contigs are discarded for that sample. The option `--keep-duplicates` saves the list of duplicates detected in each sample to `duplicates.txt`, which is used in section 4.2.2 to recover part of these loci.
-
-☁️ The search results (number of contigs, number of UCE loci recovered and number of duplicates removed per sample) are printed to the terminal and, with the option `--csv`, also saved to `uce_search_results.csv`.
-
-## 4. Target enrichment
-
-### 4.1 Finding UCE loci
-After assembling the contigs, the next step is to identify which contigs correspond to UCE loci and to exclude non-target sequences. To do this, the contigs of each sample are compared with the probe set used for target enrichment (in this example, `Probeset-70nt.fasta`).
-
-From this point on, all commands are run from the working directory, which contains the probe file and the `data/` folder. Keeping a clean and consistent folder structure is especially important from here on to avoid errors.
-
-```
-phyluce_assembly_match_contigs_to_probes \
-    --contigs data/spades_assemblies/contigs \
+    --contigs data/spades_assemblies \
     --probes Probeset-70nt.fasta \
     --output uce-search-results \
     --keep-duplicates duplicates.txt \
@@ -160,13 +143,13 @@ Both cases suggest that the locus is problematic, either because of assembly err
 ### 4.2 Extracting UCE loci
 Next, define the set of taxa to be included in the analysis in a configuration file (`taxon-set.conf`). The first line contains the name of the taxon set in square brackets (e.g. `[taxon_set1]`), followed by the names of the taxa, one per line.
 
-⚠️ Important: The taxon names must exactly match the sample names used in the assembly. To include all assembled samples and avoid typing errors, create the file directly from the contigs folder. First, write the name of the taxon set:
+⚠️ Important: The taxon names must exactly match the sample names used in the assembly. To include all assembled samples and avoid typing errors, create the file directly from the contig files. First, write the name of the taxon set:
 ```
 echo "[taxon_set1]" > taxon-set.conf
 ```
 Then, add the names of all assembled samples:
 ```
-ls data/spades_assemblies/contigs | sed 's/\.contigs\.fasta$//' >> taxon-set.conf
+for f in data/spades_assemblies/*.contigs.fasta; do basename "$f" .contigs.fasta; done >> taxon-set.conf
 ```
 To exclude some samples, delete their lines from the file (e.g. with `nano`).
 
@@ -191,7 +174,7 @@ phyluce_assembly_get_match_counts \
 And extract the corresponding sequences in FASTA format:
 ```
 phyluce_assembly_get_fastas_from_match_counts \
-    --contigs data/spades_assemblies/contigs \
+    --contigs data/spades_assemblies \
     --locus-db uce-search-results/probe.matches.sqlite \
     --match-count-output taxon_set1-taxa-incomplete.conf \
     --output taxon_set1-taxa-incomplete.fasta \
@@ -239,7 +222,7 @@ mv duplicates.txt duplicates/
 Run the script `phyluce_assembly_parse_duplicates_file.py` within the Phyluce environment to extract the duplicate contigs in FASTA format:
 ```
 python3 phyluce_assembly_parse_duplicates_file.py \
-    --contigs data/spades_assemblies/contigs \
+    --contigs data/spades_assemblies \
     --duplicates-file duplicates/duplicates.txt \
     --output duplicates/duplicates.fasta \
     --log-path log
