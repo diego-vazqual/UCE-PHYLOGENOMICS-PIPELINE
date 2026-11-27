@@ -122,6 +122,11 @@ After assembling the contigs, the next step is to identify which contigs corresp
 
 From this point on, all commands are run from the working directory, which contains the probe file and the `data/` folder. Keeping a clean and consistent folder structure is especially important from here on to avoid errors.
 
+Create a folder to store the log files of the Phyluce commands:
+```
+mkdir -p log
+```
+
 ```
 phyluce_assembly_match_contigs_to_probes \
     --contigs data/spades_assemblies \
@@ -208,7 +213,7 @@ Acteon-tornatilis.unaligned.fasta,1455,776310,533.5,4.6,201,1189,548.0,9
 ```
 
 #### 4.2.2 Recovering duplicate UCE loci
-The loci removed as duplicates in section 4.1 are lost for the affected taxa. To recover part of them, we use the script `phyluce_assembly_parse_duplicates_file.py`(Faircloth, 2016). The script extracts from the assemblies the contigs of the loci listed under **probes hitting multiple contigs** in `duplicates.txt`. Contigs hitting multiple probes are not recovered.
+The loci removed as duplicates in section 4.1 are lost for the affected taxa. To recover part of them, we use the script `phyluce_assembly_parse_duplicates_file.py` (Faircloth, 2016). The script extracts from the assemblies the contigs of the loci listed under **probes hitting multiple contigs** in `duplicates.txt`. Contigs hitting multiple probes are not recovered.
 
 First, create a folder for the recovery of duplicates:
 ```
@@ -263,14 +268,18 @@ for i in exploded-fastas-final/*.fasta; do
 done
 ```
 ## 5. Alignment
-### 5.1 Aligning UCE loci
-The recovered UCE loci were aligned using the MAFFT algorithm. For the alignment, we specified the options `--no-trim`, which disables the automatic trimming of unaligned regions and retains all positions in the alignments, and `--taxa`, where we must indicate the number of taxa in our dataset.
 
+### 5.1 Aligning UCE loci
+The UCE loci are aligned with MAFFT (Katoh & Standley, 2013) using `phyluce_align_seqcap_align`. The option `--taxa` requires the number of taxa in the dataset, which can be obtained by counting the taxa listed in `taxon-set.conf` (all lines except the header):
+```
+grep -vc '^\[' taxon-set.conf
+```
+Then, align the loci:
 ```
 phyluce_align_seqcap_align \
     --input final-taxon_set1-taxa-incomplete.fasta \
-    --output mafft-nexus-no-internal-trimmed \
-    --taxa 117 \
+    --output mafft-fasta-untrimmed \
+    --taxa 145 \
     --aligner mafft \
     --cores 24 \
     --incomplete-matrix \
@@ -278,29 +287,40 @@ phyluce_align_seqcap_align \
     --no-trim \
     --log-path log
 ```
+- `--incomplete-matrix`: keeps loci that are missing in some taxa (see section 4.2).
+- `--no-trim`: by default, Phyluce trims the ragged ends of the alignments. This option disables that trimming, because the alignments are trimmed afterwards with Gblocks (section 5.2).
+- `--output-format fasta`: the alignments are written in FASTA format, which is the input format required by the Gblocks step.
+
+📌 Adjust `--cores` to the available resources.
 
 ### 5.2 Gblocks
-To mask regions of sequences that are highly variable, ambiguous, or error-prone, Gblocks is used as a bioinformatics masking tool. Gblocks identifies and removes unreliable or poorly aligned sections in DNA, RNA, or protein sequences, retaining only the regions that are well and consistently aligned. Therefore, this tool improves the quality of multiple sequence alignments in phylogenetic studies.
-
-Phyluce includes a specific command to run Gblocks directly:
+Poorly aligned positions and highly divergent regions of the alignments are removed with Gblocks (Castresana, 2000), which keeps only the blocks of positions that are reliably aligned. Phyluce includes a command to run Gblocks on all the alignments:
 ```
 phyluce_align_get_gblocks_trimmed_alignments_from_untrimmed \
-        --alignments mafft-nexus-no-internal-trimmed  \
-        --output mafft-nexus-internal-no-trimmed-gblocks \
-        --b1 0.5 \
-        --b2 0.85 \
-        --b3 4 \
-        --b4 8 \
-        --cores 24 \
-        --log-path log
+    --alignments mafft-fasta-untrimmed \
+    --output mafft-nexus-trimmed-gblocks \
+    --b1 0.5 \
+    --b2 0.85 \
+    --b3 4 \
+    --b4 8 \
+    --cores 24 \
+    --log-path log
 ```
-There are three possible Gblocks configurations, which differ in the values of the parameters `--b1`, `--b2`, `--b3`, and `--b4`. The choice of configuration depends on the nature of the data and the goals of the analysis:
+📌 Adjust `--cores` to the available resources.
 
-**Configuration 1**: --b1 0.5 --b2 0.85 --b3 4 --b4 8  # very restrictive
+The trimmed alignments are written in NEXUS format. The four Gblocks parameters control how strict the trimming is:
+- `--b1`: minimum proportion of sequences required for a position to be considered conserved.
+- `--b2`: minimum proportion of sequences required for a position at the flanks of a block.
+- `--b3`: maximum number of contiguous non-conserved positions allowed within a block.
+- `--b4`: minimum length of a block.
 
-**Configuration 2**: --b1 0.5 --b2 0.5 --b3 6 --b4 6  # intermediate
+Three commonly used configurations, from most to least stringent, are shown below. The command above uses configuration 1:
 
-**Configuration 3**: --b1 0.5 --b2 0.5 --b3 10 --b4 4  # very conservative
+**Configuration 1** (`--b1 0.5 --b2 0.85 --b3 4 --b4 8`): most stringent (removes the most positions).
+
+**Configuration 2** (`--b1 0.5 --b2 0.5 --b3 6 --b4 6`): intermediate.
+
+**Configuration 3** (`--b1 0.5 --b2 0.5 --b3 10 --b4 4`): least stringent (keeps the most positions, but also more poorly aligned regions).
 
 ### 5.3 Alignment cleaning
 Once the UCE loci have been aligned and the multiple alignments masked, each file contains both the taxon name and the locus name. For downstream analyses, it is necessary to remove the locus name from the files so that they include only the taxon name.
